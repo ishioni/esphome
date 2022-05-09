@@ -1,0 +1,157 @@
+substitutions:
+  name: espzigbee
+
+#based on https://github.com/ficueu/ESP-POE-ZB
+esphome:
+  name: ${name}
+  comment: ESP-based zigbee coordinator
+  platform: ESP32
+  board: esp32dev
+  name_add_mac_suffix: true
+  project:
+    name: esphome.espzigbee
+    version: "1.2"
+
+logger:
+
+api:
+
+ota:
+
+dashboard_import:
+  package_import_url: github://ishioni/esphome/espzigbee-template.yaml@master
+
+web_server:
+  port: 80
+
+external_components:
+  - source: github://oxan/esphome-stream-server
+
+status_led:
+  pin:
+    number: 2
+    inverted: true
+    
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO17_OUT
+  phy_addr: 1
+  power_pin: GPIO12
+
+i2c:
+  sda: 14
+  scl: 13
+  id: i2cbus
+
+uart:
+  id: uart_bus
+  rx_pin: GPIO4
+  tx_pin: GPIO5
+  baud_rate: 115200
+
+binary_sensor:
+  - platform: status
+    name: ${name} status
+
+text_sensor:
+  - platform: template
+    name: ${name} uptime human readable
+    id: uptime_human
+    icon: mdi:clock-start
+    disabled_by_default: true
+    entity_category: diagnostic
+
+sensor:
+  - platform: adc
+    filters:
+      - multiply: 48.4
+    pin: GPIO35
+    name: "Bus Voltage"
+    update_interval: 60s
+  
+  - platform: uptime
+    name: ${name} uptime
+    id: uptime_sensor
+    update_interval: 60s
+    disabled_by_default: true
+    on_raw_value:
+      then:
+        - text_sensor.template.publish:
+            id: uptime_human
+            state: !lambda |-
+              int seconds = round(id(uptime_sensor).raw_state);
+              int days = seconds / (24 * 3600);
+              seconds = seconds % (24 * 3600);
+              int hours = seconds / 3600;
+              seconds = seconds % 3600;
+              int minutes = seconds /  60;
+              seconds = seconds % 60;
+              return (
+                (days ? to_string(days) + "d " : "") +
+                (hours ? to_string(hours) + "h " : "") +
+                (minutes ? to_string(minutes) + "m " : "") +
+                (to_string(seconds) + "s")
+              ).c_str();
+
+button:
+  - platform: restart
+    name: ${name} reset
+    entity_category: config
+
+  - platform: template
+    name: ${name} zigbee reset
+    entity_category: config
+    device_class: restart
+    icon: mdi:restart
+    id: zRST
+    on_press:
+      - switch.turn_on: zRST_gpio
+      - delay: 1s
+      - switch.turn_off: zRST_gpio
+      - logger.log: "Zigbee reset"
+
+switch:
+  - platform: gpio
+    pin: 32
+    id: zRST_gpio
+    inverted: yes
+    restore_mode: ALWAYS_OFF
+
+  - platform: gpio
+    pin: 33
+    name: ${name} Zigbee BSL
+    entity_category: config
+    icon: mdi:toggle-switch
+    id: zBSL
+    inverted: yes
+    restore_mode: ALWAYS_OFF
+    internal: true
+    
+  - platform: template
+    name: ${name} firmware update
+    entity_category: config
+    icon: mdi:cellphone-arrow-down
+    optimistic: true
+    turn_on_action:
+      - script.execute: fw_update_mode
+    turn_off_action:
+      - button.press: zRST
+
+script:
+  - id: fw_update_mode
+    then:
+      - switch.turn_on: zBSL
+      - delay: 1s
+      - button.press: zRST
+      - logger.log: "Delaying ~10 seconds for TI chip to be ready"
+      - delay: 10s
+      - switch.turn_off: zBSL
+      - logger.log: "Update with cc2538-bsl tool now!"
+      - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:6638 -evw firmware.hex"
+
+#Serial Bridge Settings,uncomment #port to change default 6638 TCP port
+stream_server:
+  uart_id: uart_bus
+#  port: 6638
