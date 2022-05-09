@@ -9,7 +9,7 @@ esphome:
   board: esp32dev
   name_add_mac_suffix: true
   project:
-    name: esphome.espzigbee
+    name: ishioni.espzigbee
     version: "1.2"
 
 logger:

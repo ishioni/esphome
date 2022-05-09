@@ -8,7 +8,7 @@ esphome:
   board: esp01_1m
   name_add_mac_suffix: true
   project:
-    name: esphome.ifan03
+    name: ishioni.ifan03
     version: "1.0"
   includes:
     - ifan03.h
