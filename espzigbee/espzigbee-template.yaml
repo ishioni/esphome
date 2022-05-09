@@ -19,7 +19,7 @@ api:
 ota:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/espzigbee-template.yaml@master
+  package_import_url: github://ishioni/esphome/espzigbee/espzigbee-template.yaml@master
 
 web_server:
   port: 80
