@@ -68,7 +68,7 @@ sensor:
     filters:
       - multiply: 48.4
     pin: GPIO35
-    name: "Bus Voltage"
+    name: ${name} POE voltage
     update_interval: 60s
   
   - platform: uptime
