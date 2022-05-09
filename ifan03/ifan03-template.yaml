@@ -1,0 +1,210 @@
+substitutions:
+  name: ifan03
+
+esphome:
+  name: ${name}
+  comment: Sonoff ifan03 powered fan
+  platform: ESP8266
+  board: esp01_1m
+  name_add_mac_suffix: true
+  project:
+    name: esphome.ifan03
+    version: "1.0"
+  includes:
+    - ifan03.h
+
+logger:
+  
+api:
+
+ota:
+
+wifi:
+  ap: {}
+
+captive_portal:
+
+dashboard_import:
+  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml
+
+web_server:
+  port: 80
+
+remote_receiver:
+  pin: 
+    number: GPIO3
+
+sensor:
+  - platform: wifi_signal
+    name: ${name} signal
+    disabled_by_default: true
+    
+  - platform: uptime
+    name: ${name} uptime
+    id: uptime_sensor
+    update_interval: 60s
+    disabled_by_default: true
+    on_raw_value:
+      then:
+        - text_sensor.template.publish:
+            id: uptime_human
+            state: !lambda |-
+              int seconds = round(id(uptime_sensor).raw_state);
+              int days = seconds / (24 * 3600);
+              seconds = seconds % (24 * 3600);
+              int hours = seconds / 3600;
+              seconds = seconds % 3600;
+              int minutes = seconds /  60;
+              seconds = seconds % 60;
+              return (
+                (days ? to_string(days) + "d " : "") +
+                (hours ? to_string(hours) + "h " : "") +
+                (minutes ? to_string(minutes) + "m " : "") +
+                (to_string(seconds) + "s")
+              ).c_str();
+
+text_sensor:
+  - platform: template
+    name: ${name} uptime human readable
+    entity_category: diagnostic
+    disabled_by_default: true
+    id: uptime_human
+    icon: mdi:clock-start
+
+  - platform: version
+    name: ${name} ESPHome version
+    disabled_by_default: true
+
+binary_sensor:
+  - platform: status
+    name: ${name} status
+    
+  - platform: remote_receiver
+    internal: true
+    id: remote_buzzer
+    raw:
+      code: [-207, 104, -103, 104, -104, 103, -104, 207, -104, 103, -104, 103, -104, 104, -103, 104, -103, 104, -104, 107, -721, 105, -206, 207, -518, 105, -931, 104, -104, 103, -725, 104, -104, 103, -725, 104, -104, 103, -207, 104, -414]
+    on_release:
+      then:
+        - switch.toggle: buzzer_dummy
+        - script.execute: beep
+
+  - platform: remote_receiver
+    id: remote_off
+    raw:
+      code: [-207, 104, -103, 104, -104, 103, -104, 207, -104, 103, -104, 104, -103, 104, -104, 103, -104, 105, -102, 104, -725, 104, -311, 103, -518, 104, -933, 103, -104, 104, -725, 104, -932, 104, -207, 207, -519]
+    on_release:
+      then:
+        - fan.turn_off: ifan03_fan
+        - if: &beep
+            condition:
+              switch.is_on: buzzer_dummy
+            then:
+              - script.execute: beep
+    internal: true
+
+  - platform: remote_receiver
+    id: remote_low
+    raw:
+      code: [-207, 104, -104, 103, -104, 104, -103, 207, -104, 104, -103, 104, -104, 103, -104, 104, -103, 104, -104, 103, -726, 103, -312, 103, -518, 104, -933, 103, -104, 104, -725, 104, -103, 104, -726, 103, -104, 311, -518]
+    on_release:
+      then:
+        - fan.turn_on:
+            id: ifan03_fan
+            speed: 1
+        - if: *beep
+
+  - platform: remote_receiver
+    id: remote_medium
+    raw:
+      code: [-208, 103, -104, 104, -103, 104, -103, 208, -103, 104, -104, 103, -104, 104, -103, 104, -104, 103, -104, 103, -726, 104, -310, 104, -518, 104, -933, 103, -104, 104, -725, 104, -207, 104, -622, 103, -416, 102, -415]
+    on_release:
+      then:
+        - fan.turn_on:
+            id: ifan03_fan
+            speed: 2
+        - if: *beep
+
+  - platform: remote_receiver
+    id: remote_high
+    raw:
+      code: [-207, 104, -104, 103, -104, 104, -103, 208, -103, 104, -104, 103, -104, 104, -103, 104, -104, 103, -104, 103, -726, 104, -311, 104, -518, 103, -934, 103, -103, 104, -726, 103, -104, 207, -622, 104, -103, 104, -207, 104, -415]
+    on_release:
+      then:
+        - fan.turn_on:
+            id: ifan03_fan
+            speed: 3
+        - if: *beep
+
+  - platform: remote_receiver
+    id: remote_oscillate
+    raw:
+      code: [-207, 104, -103, 104, -104, 103, -104, 207, -104, 103, -104, 104, -103, 104, -103, 104, -104, 103, -104, 104, -725, 104, -311, 103, -518, 104, -933, 103, -104, 103, -726, 103, -311, 104, -518, 104, -207, 104, -103, 104, -414]
+    on_release:
+      then:
+        - if:
+            condition:
+              fan.is_on: ifan03_fan
+            then:
+              - lambda: |-
+                  auto call = id(ifan03_fan).turn_on();
+                  if (id(ifan03_fan).oscillating ) {
+                    call.set_oscillating(false);
+                  } else {
+                    call.set_oscillating(true);
+                  }
+                  call.perform();
+        - if: *beep
+
+output:
+  - platform: custom
+    type: float
+    outputs:
+      id: fan_out
+    lambda: |-
+      auto ifan03_fan = new IFan03Output();
+      App.register_component(ifan03_fan);
+      return {ifan03_fan};
+
+  - platform: gpio
+    pin: GPIO9
+    id: oscillation_out
+    inverted: true
+
+  - platform: gpio
+    pin: GPIO10
+    id: buzzer_out
+    inverted: true
+
+button:
+  - platform: restart
+    name: ${name} restart
+
+script:
+  - id: beep
+    then:
+      - output.turn_on: buzzer_out
+      - delay: 100ms
+      - output.turn_off: buzzer_out
+
+switch:
+  - platform: template
+    id: buzzer_dummy
+    name: ${name} buzzer
+    optimistic: True
+    entity_category: config
+    
+fan:
+  - platform: speed
+    output: fan_out
+    speed_count: 3
+    oscillation_output: oscillation_out
+    id: ifan03_fan
+    name: ${name} fan
+    on_turn_off:
+      - lambda: !lambda |-
+          if (id(ifan03_fan).oscillating) {
+          auto call = id(ifan03_fan).turn_off();
+          call.set_oscillating(false);
+          call.perform();
+          }
