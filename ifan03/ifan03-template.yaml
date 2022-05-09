@@ -71,10 +71,6 @@ text_sensor:
     id: uptime_human
     icon: mdi:clock-start
 
-  - platform: version
-    name: ${name} ESPHome version
-    disabled_by_default: true
-
 binary_sensor:
   - platform: status
     name: ${name} status
