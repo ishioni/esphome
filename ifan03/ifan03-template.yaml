@@ -25,7 +25,7 @@ wifi:
 captive_portal:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml
+  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@master
 
 web_server:
   port: 80
