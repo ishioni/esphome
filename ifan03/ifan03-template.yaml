@@ -171,6 +171,18 @@ output:
     pin: GPIO10
     id: buzzer_out
     inverted: true
+  
+  - platform: gpio
+    pin: GPIO14
+    id: fan_relay1
+
+  - platform: gpio
+    pin: GPIO12
+    id: fan_relay2
+
+  - platform: gpio
+    pin: GPIO15
+    id: fan_relay3
 
 button:
   - platform: restart
