@@ -20,7 +20,7 @@ api:
 ota:
 
 wifi:
-  ap: {}
+  ap:
 
 captive_portal:
 
