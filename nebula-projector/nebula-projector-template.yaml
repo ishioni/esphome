@@ -137,18 +137,18 @@ light:
     output: motor_pwm
     restore_mode: ALWAYS_OFF
     internal: true
-  - platform: monochromatic
-    name: ${name} bled
-    id: bled
-    output: bled_pwm
-    restore_mode: ALWAYS_OFF
-    internal: true
-  - platform: monochromatic
-    name: ${name} rled
-    id: rled
-    output: rled_pwm
-    restore_mode: ALWAYS_OFF
-    internal: true
+  # - platform: monochromatic
+  #   name: ${name} bled
+  #   id: bled
+  #   output: bled_pwm
+  #   restore_mode: ALWAYS_OFF
+  #   internal: true
+  # - platform: monochromatic
+  #   name: ${name} rled
+  #   id: rled
+  #   output: rled_pwm
+  #   restore_mode: ALWAYS_OFF
+  #   internal: true
 
 number:
   - platform: template
