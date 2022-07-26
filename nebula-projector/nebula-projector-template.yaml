@@ -4,12 +4,14 @@ substitutions:
 esphome:
   name: ${name}
   comment: Tuya nebula projector
-  platform: ESP8266
-  board: esp12e
   name_add_mac_suffix: true
   project:
     name: ishioni.nebula_projector
     version: "1.0"
+
+esp8266:
+  board: esp12e
+  restore_from_flash: true
 
 logger:
   
@@ -137,25 +139,27 @@ light:
     output: motor_pwm
     restore_mode: ALWAYS_OFF
     internal: true
-  - platform: monochromatic
-    name: ${name} bled
-    id: bled
-    output: bled_pwm
-    restore_mode: ALWAYS_OFF
-    internal: true
-  - platform: monochromatic
-    name: ${name} rled
-    id: rled
-    output: rled_pwm
-    restore_mode: ALWAYS_OFF
-    internal: true
+  # - platform: monochromatic
+  #   name: ${name} bled
+  #   id: bled
+  #   output: bled_pwm
+  #   restore_mode: ALWAYS_OFF
+  #   internal: true
+  # - platform: monochromatic
+  #   name: ${name} rled
+  #   id: rled
+  #   output: rled_pwm
+  #   restore_mode: ALWAYS_OFF
+  #   internal: true
 
 number:
   - platform: template
     id: motor_speed
     name: ${name} motor speed
     icon: mdi:cog-clockwise
+    entity_category: config
     optimistic: true
+    restore_value: true
     step: 1
     max_value: 6
     min_value: 0
@@ -181,31 +185,31 @@ button:
   - platform: restart
     name: ${name} restart
 
-interval:
-  - interval: 60s
-    then:
-      if:
-        condition:
-          wifi.connected:
-        then:
-          - light.turn_on: 
-              id: bled
-              brightness: 50%
-        else:
-          - light.turn_off: 
-              id: bled
-  - interval: 60s
-    then:
-      if:
-        condition:
-          api.connected:
-        then:
-          - light.turn_on: 
-              id: rled
-              brightness: 50%
-        else:
-          - light.turn_off: 
-              id: rled
+# interval:
+#   - interval: 60s
+#     then:
+#       if:
+#         condition:
+#           wifi.connected:
+#         then:
+#           - light.turn_on: 
+#               id: bled
+#               brightness: 50%
+#         else:
+#           - light.turn_off: 
+#               id: bled
+#   - interval: 60s
+#     then:
+#       if:
+#         condition:
+#           api.connected:
+#         then:
+#           - light.turn_on: 
+#               id: rled
+#               brightness: 50%
+#         else:
+#           - light.turn_off: 
+#               id: rled
 
 output:
   - platform: esp8266_pwm
@@ -230,12 +234,12 @@ output:
     id: motor_pwm
     pin: GPIO13
     min_power: 0.15
-  - platform: esp8266_pwm
-    id: bled_pwm
-    pin: GPIO0
-    inverted: true
-  - platform: esp8266_pwm
-    id: rled_pwm
-    pin: GPIO15
-    inverted: true
+  # - platform: esp8266_pwm
+  #   id: bled_pwm
+  #   pin: GPIO0
+  #   inverted: true
+  # - platform: esp8266_pwm
+  #   id: rled_pwm
+  #   pin: GPIO15
+  #   inverted: true
 
