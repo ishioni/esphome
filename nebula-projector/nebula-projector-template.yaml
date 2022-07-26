@@ -159,6 +159,7 @@ number:
     icon: mdi:cog-clockwise
     entity_category: config
     optimistic: true
+    restore_value: true
     step: 1
     max_value: 6
     min_value: 0
