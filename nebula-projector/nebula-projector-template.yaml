@@ -25,7 +25,7 @@ wifi:
 captive_portal:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@fix/nebula-restarts
+  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@master
 
 web_server:
   port: 80
