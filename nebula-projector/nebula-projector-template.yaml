@@ -4,7 +4,6 @@ substitutions:
 esphome:
   name: ${name}
   comment: Tuya nebula projector
-  platform: ESP8266
   name_add_mac_suffix: true
   project:
     name: ishioni.nebula_projector
