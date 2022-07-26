@@ -23,7 +23,7 @@ wifi:
 captive_portal:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@master
+  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@nebula-restarts
 
 web_server:
   port: 80
@@ -181,31 +181,31 @@ button:
   - platform: restart
     name: ${name} restart
 
-interval:
-  - interval: 60s
-    then:
-      if:
-        condition:
-          wifi.connected:
-        then:
-          - light.turn_on: 
-              id: bled
-              brightness: 50%
-        else:
-          - light.turn_off: 
-              id: bled
-  - interval: 60s
-    then:
-      if:
-        condition:
-          api.connected:
-        then:
-          - light.turn_on: 
-              id: rled
-              brightness: 50%
-        else:
-          - light.turn_off: 
-              id: rled
+# interval:
+#   - interval: 60s
+#     then:
+#       if:
+#         condition:
+#           wifi.connected:
+#         then:
+#           - light.turn_on: 
+#               id: bled
+#               brightness: 50%
+#         else:
+#           - light.turn_off: 
+#               id: bled
+#   - interval: 60s
+#     then:
+#       if:
+#         condition:
+#           api.connected:
+#         then:
+#           - light.turn_on: 
+#               id: rled
+#               brightness: 50%
+#         else:
+#           - light.turn_off: 
+#               id: rled
 
 output:
   - platform: esp8266_pwm
@@ -230,12 +230,12 @@ output:
     id: motor_pwm
     pin: GPIO13
     min_power: 0.15
-  - platform: esp8266_pwm
-    id: bled_pwm
-    pin: GPIO0
-    inverted: true
-  - platform: esp8266_pwm
-    id: rled_pwm
-    pin: GPIO15
-    inverted: true
+  # - platform: esp8266_pwm
+  #   id: bled_pwm
+  #   pin: GPIO0
+  #   inverted: true
+  # - platform: esp8266_pwm
+  #   id: rled_pwm
+  #   pin: GPIO15
+  #   inverted: true
 
