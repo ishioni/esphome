@@ -50,10 +50,14 @@ uart:
   rx_pin: GPIO4
   tx_pin: GPIO5
   baud_rate: 115200
+  rx_buffer_size: 2048
 
 binary_sensor:
   - platform: status
     name: ${name} status
+  - platform: stream_server
+    connected:
+      name: ${name} client connected
 
 text_sensor:
   - platform: template
@@ -154,4 +158,5 @@ script:
 #Serial Bridge Settings,uncomment #port to change default 6638 TCP port
 stream_server:
   uart_id: uart_bus
+  buffer_size: 2048
 #  port: 6638
