@@ -17,6 +17,7 @@ logger:
 api:
 
 ota:
+  platform: esphome
 
 dashboard_import:
   package_import_url: github://ishioni/esphome/espzigbee/espzigbee-template.yaml@master
