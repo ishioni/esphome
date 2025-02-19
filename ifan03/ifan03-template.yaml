@@ -29,7 +29,7 @@ wifi:
 binary_sensor:
   - platform: status
     device_class: connectivity
-    name: status
+    name: Status
     
   - platform: remote_receiver
     id: remote_buzzer
