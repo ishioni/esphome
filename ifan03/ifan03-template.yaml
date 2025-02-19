@@ -17,7 +17,7 @@ esp8266:
 api:
 captive_portal:
 dashboard_import:
-  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@master
+  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@ifan03-2.1
 logger:
 ota:
   platform: esphome
