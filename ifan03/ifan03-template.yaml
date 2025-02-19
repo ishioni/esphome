@@ -9,7 +9,7 @@ esphome:
   name_add_mac_suffix: true
   project:
     name: ishioni.ifan03
-    version: "2.0"
+    version: "2.1"
 
 esp8266:
   board: esp01_1m
@@ -38,7 +38,7 @@ binary_sensor:
     on_release:
       then:
         - switch.toggle: buzzer_dummy
-        - script.execute: beep
+        # - script.execute: beep
 
   - platform: remote_receiver
     id: remote_off
@@ -47,11 +47,11 @@ binary_sensor:
     on_release:
       then:
         - fan.turn_off: ifan03_fan
-        - if: &beep
-            condition:
-              switch.is_on: buzzer_dummy
-            then:
-              - script.execute: beep
+        # - if: &beep
+        #     condition:
+        #       switch.is_on: buzzer_dummy
+        #     then:
+        #       - script.execute: beep
 
   - platform: remote_receiver
     id: remote_low
@@ -62,7 +62,7 @@ binary_sensor:
         - fan.turn_on:
             id: ifan03_fan
             speed: 1
-        - if: *beep
+        # - if: *beep
 
   - platform: remote_receiver
     id: remote_medium
@@ -73,7 +73,7 @@ binary_sensor:
         - fan.turn_on:
             id: ifan03_fan
             speed: 2
-        - if: *beep
+        # - if: *beep
 
   - platform: remote_receiver
     id: remote_high
@@ -84,7 +84,7 @@ binary_sensor:
         - fan.turn_on:
             id: ifan03_fan
             speed: 3
-        - if: *beep
+        # - if: *beep
 
   - platform: remote_receiver
     id: remote_oscillate
@@ -104,7 +104,7 @@ binary_sensor:
                     call.set_oscillating(true);
                   }
                   call.perform();
-        - if: *beep
+        # - if: *beep
 
 button:
   - platform: restart
@@ -130,12 +130,12 @@ remote_receiver:
   pin: 
     number: GPIO3
 
-script:
-  - id: beep
-    then:
-      - output.turn_on: buzzer_out
-      - delay: 100ms
-      - output.turn_off: buzzer_out
+# script:
+#   - id: beep
+#     then:
+#       - output.turn_on: buzzer_out
+#       - delay: 100ms
+#       - output.turn_off: buzzer_out
 
 sensor:
   - platform: wifi_signal
@@ -153,7 +153,6 @@ sensor:
   - platform: uptime
     name: Uptime
     entity_category: "diagnostic"
-    device_class: "timestamp"
   - platform: adc
     pin: VCC
     name: "VCC Voltage"
@@ -222,8 +221,8 @@ output:
     id: oscillation_out
     inverted: true
 
-  - platform: gpio
-    pin: GPIO10
-    id: buzzer_out
-    inverted: true
+  # - platform: gpio
+  #   pin: GPIO10
+  #   id: buzzer_out
+  #   inverted: true
     
