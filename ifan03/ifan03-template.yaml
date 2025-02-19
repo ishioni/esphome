@@ -4,14 +4,15 @@ substitutions:
 esphome:
   name: ${name}
   comment: Sonoff ifan03 powered fan
-  platform: ESP8266
-  board: esp01_1m
   name_add_mac_suffix: true
   project:
     name: ishioni.ifan03
-    version: "1.0"
+    version: "1.1"
   includes:
     - ifan03.h
+
+esp8266:
+  board: esp01_1m
 
 logger:
   
