@@ -1,5 +1,10 @@
-esphome:
+substitutions:
   name: ifan03
+  friendly_name: ifan03
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
   comment: Sonoff ifan03 powered fan
   name_add_mac_suffix: true
   project:
