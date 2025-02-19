@@ -1,84 +1,32 @@
-substitutions:
-  name: ifan03
-
 esphome:
-  name: ${name}
+  name: ifan03
   comment: Sonoff ifan03 powered fan
   name_add_mac_suffix: true
   project:
     name: ishioni.ifan03
-    version: "1.1"
-  includes:
-    - ifan03.h
+    version: "2.0"
 
 esp8266:
   board: esp01_1m
 
-logger:
-  
 api:
-
+captive_portal:
+dashboard_import:
+  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@master
+logger:
 ota:
   platform: esphome
-
+web_server:
+  port: 80
 wifi:
   ap:
 
-captive_portal:
-
-dashboard_import:
-  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@master
-
-web_server:
-  port: 80
-
-remote_receiver:
-  pin: 
-    number: GPIO3
-
-sensor:
-  - platform: wifi_signal
-    name: ${name} signal
-    disabled_by_default: true
-    
-  - platform: uptime
-    name: ${name} uptime
-    id: uptime_sensor
-    update_interval: 60s
-    disabled_by_default: true
-    on_raw_value:
-      then:
-        - text_sensor.template.publish:
-            id: uptime_human
-            state: !lambda |-
-              int seconds = round(id(uptime_sensor).raw_state);
-              int days = seconds / (24 * 3600);
-              seconds = seconds % (24 * 3600);
-              int hours = seconds / 3600;
-              seconds = seconds % 3600;
-              int minutes = seconds /  60;
-              seconds = seconds % 60;
-              return (
-                (days ? to_string(days) + "d " : "") +
-                (hours ? to_string(hours) + "h " : "") +
-                (minutes ? to_string(minutes) + "m " : "") +
-                (to_string(seconds) + "s")
-              ).c_str();
-
-text_sensor:
-  - platform: template
-    name: ${name} uptime human readable
-    entity_category: diagnostic
-    disabled_by_default: true
-    id: uptime_human
-    icon: mdi:clock-start
-
 binary_sensor:
   - platform: status
-    name: ${name} status
+    device_class: connectivity
+    name: status
     
   - platform: remote_receiver
-    internal: true
     id: remote_buzzer
     raw:
       code: [-207, 104, -103, 104, -104, 103, -104, 207, -104, 103, -104, 103, -104, 104, -103, 104, -103, 104, -104, 107, -721, 105, -206, 207, -518, 105, -931, 104, -104, 103, -725, 104, -104, 103, -725, 104, -104, 103, -207, 104, -414]
@@ -99,7 +47,6 @@ binary_sensor:
               switch.is_on: buzzer_dummy
             then:
               - script.execute: beep
-    internal: true
 
   - platform: remote_receiver
     id: remote_low
@@ -154,15 +101,116 @@ binary_sensor:
                   call.perform();
         - if: *beep
 
+button:
+  - platform: restart
+    name: "Reboot"
+
+fan:
+  - platform: speed
+    output: fan_decode
+    speed_count: 3
+    oscillation_output: oscillation_out
+    id: ifan03_fan
+    icon: mdi:fan
+    name: Fan
+    on_turn_off:
+      - lambda: !lambda |-
+          if (id(ifan03_fan).oscillating) {
+          auto call = id(ifan03_fan).turn_off();
+          call.set_oscillating(false);
+          call.perform();
+          }
+
+remote_receiver:
+  pin: 
+    number: GPIO3
+
+script:
+  - id: beep
+    then:
+      - output.turn_on: buzzer_out
+      - delay: 100ms
+      - output.turn_off: buzzer_out
+
+sensor:
+  - platform: wifi_signal
+    id: wifi_signal_db
+    update_interval: 10s
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "WiFi signal"
+    icon: mdi:wifi-strength-1
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    entity_category: "diagnostic"
+    device_class: ""
+  - platform: uptime
+    name: Uptime
+    entity_category: "diagnostic"
+    device_class: "timestamp"
+  - platform: adc
+    pin: VCC
+    name: "VCC Voltage"
+    entity_category: "diagnostic"
+    device_class: "voltage"
+
+switch:
+  - platform: template
+    id: buzzer_dummy
+    name: Buzzer
+    icon: mdi:volume-medium
+    optimistic: True
+    entity_category: config
+  - platform: gpio
+    name: "GPIO 14 Relay"
+    pin: GPIO14
+    id: gpio14sw
+    restore_mode: RESTORE_DEFAULT_OFF
+    internal: true
+  - platform: gpio
+    name: "GPIO 12 Relay"
+    pin: GPIO12
+    id: gpio12sw
+    restore_mode: RESTORE_DEFAULT_OFF
+    internal: true
+  - platform: gpio
+    name: "GPIO 15 Relay"
+    pin: GPIO15
+    id: gpio15sw
+    restore_mode: RESTORE_DEFAULT_OFF
+    internal: true
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
 output:
-  - platform: custom
+  - platform: template
     type: float
-    outputs:
-      id: fan_out
-    lambda: |-
-      auto ifan03_fan = new IFan03Output();
-      App.register_component(ifan03_fan);
-      return {ifan03_fan};
+    id: fan_decode
+    write_action:
+      - lambda: |-
+          if (state < 0.25) {
+            id(gpio14sw).turn_off();
+            id(gpio12sw).turn_off();
+            id(gpio15sw).turn_off();
+          }
+          else if (state < 0.5) {
+            id(gpio14sw).turn_on();
+            id(gpio12sw).turn_off();
+            id(gpio15sw).turn_off();
+          }
+          else if (state < 0.75) {
+            id(gpio14sw).turn_on();
+            id(gpio12sw).turn_on();
+            id(gpio15sw).turn_off();
+          }
+          else {
+            id(gpio14sw).turn_on();
+            id(gpio12sw).turn_off();
+            id(gpio15sw).turn_on();
+          }
 
   - platform: gpio
     pin: GPIO9
@@ -173,48 +221,4 @@ output:
     pin: GPIO10
     id: buzzer_out
     inverted: true
-  
-  - platform: gpio
-    pin: GPIO14
-    id: fan_relay1
-
-  - platform: gpio
-    pin: GPIO12
-    id: fan_relay2
-
-  - platform: gpio
-    pin: GPIO15
-    id: fan_relay3
-
-button:
-  - platform: restart
-    name: ${name} restart
-
-script:
-  - id: beep
-    then:
-      - output.turn_on: buzzer_out
-      - delay: 100ms
-      - output.turn_off: buzzer_out
-
-switch:
-  - platform: template
-    id: buzzer_dummy
-    name: ${name} buzzer
-    optimistic: True
-    entity_category: config
     
-fan:
-  - platform: speed
-    output: fan_out
-    speed_count: 3
-    oscillation_output: oscillation_out
-    id: ifan03_fan
-    name: ${name} fan
-    on_turn_off:
-      - lambda: !lambda |-
-          if (id(ifan03_fan).oscillating) {
-          auto call = id(ifan03_fan).turn_off();
-          call.set_oscillating(false);
-          call.perform();
-          }
