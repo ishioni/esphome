@@ -5,12 +5,13 @@ substitutions:
 esphome:
   name: ${name}
   comment: ESP-based zigbee coordinator
-  platform: ESP32
-  board: esp32dev
   name_add_mac_suffix: true
   project:
     name: ishioni.espzigbee
     version: "1.2"
+
+esp32:
+  board: esp32dev
 
 logger:
 
