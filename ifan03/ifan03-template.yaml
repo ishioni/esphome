@@ -16,6 +16,14 @@ esp8266:
   early_pin_init: false
 
 api:
+  actions:
+    - action: buzzer_beep
+      variables:
+        number: int
+      then:
+        - script.execute: 
+            id: beep
+            num_beeps: !lambda 'return number;'
 captive_portal:
 dashboard_import:
   package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@feat/ifan03-buzzer
@@ -148,8 +156,10 @@ script:
           count: !lambda 'return num_beeps;'
           then: 
             - output.turn_on: buzzer_out
+            - logger.log: "Buzzer on"
             - delay: 50ms
             - output.turn_off: buzzer_out
+            - logger.log: "Buzzer off"
 
 sensor:
   - platform: wifi_signal
