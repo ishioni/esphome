@@ -13,6 +13,7 @@ esphome:
 
 esp8266:
   board: esp01_1m
+  early_pint_init: false
 
 api:
 captive_portal:
@@ -109,6 +110,13 @@ binary_sensor:
 button:
   - platform: restart
     name: "Reboot"
+  - platform: template
+    name: "Beep 3 Times"
+    on_press:
+      then:
+        - script.execute: 
+            id: beep_buzzer
+            num_beeps: 3
 
 fan:
   - platform: speed
@@ -130,12 +138,18 @@ remote_receiver:
   pin: 
     number: GPIO3
 
-# script:
-#   - id: beep
-#     then:
-#       - output.turn_on: buzzer_out
-#       - delay: 100ms
-#       - output.turn_off: buzzer_out
+script:
+  - id: beep
+    parameters:
+      num_beeps: int
+    mode: restart
+    then:
+      - repeat:
+          count: !lambda 'return num_beeps;'
+          then: 
+            - output.turn_on: buzzer_out
+            - delay: 50ms
+            - output.turn_off: buzzer_out
 
 sensor:
   - platform: wifi_signal
@@ -166,12 +180,6 @@ switch:
     icon: mdi:volume-medium
     optimistic: True
     entity_category: config
-  - platform: gpio
-    id: buzzer_test
-    name: Buzzer switch
-    pin: GPIO10
-    restore_mode: RESTORE_DEFAULT_OFF
-    inverted: true
   - platform: gpio
     name: "GPIO 14 Relay"
     pin: GPIO14
@@ -227,8 +235,8 @@ output:
     id: oscillation_out
     inverted: true
 
-  # - platform: gpio
-  #   pin: GPIO10
-  #   id: buzzer_out
-  #   inverted: true
+  - platform: gpio
+    pin: GPIO10
+    id: buzzer_out
+    inverted: true
     
