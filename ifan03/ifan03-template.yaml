@@ -19,11 +19,11 @@ api:
   actions:
     - action: buzzer_beep
       variables:
-        number: int
+        beep_number: int
       then:
         - script.execute: 
             id: beep
-            num_beeps: !lambda 'return number;'
+            num_beeps: !lambda 'return beep_number;'
 captive_portal:
 dashboard_import:
   package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@feat/ifan03-buzzer
