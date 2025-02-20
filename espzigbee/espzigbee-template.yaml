@@ -102,9 +102,6 @@ script:
     parameters:
       publish_state: bool
     then:
-      - switch.turn_on: zigbee_reset_switch
-      - light.turn_off:
-          id: status_led
       - if:
           condition:
             lambda: 'return publish_state;'
@@ -112,6 +109,9 @@ script:
             - text_sensor.template.publish:
                 id: zigbee_state
                 state: Rebooting
+      - switch.turn_on: zigbee_reset_switch
+      - light.turn_off:
+          id: status_led
       - delay: 1s
       - switch.turn_off: zigbee_reset_switch
       - logger.log: "Zigbee reset"
@@ -126,6 +126,9 @@ script:
                 state: Coordinator
   - id: zigbee_update_script
     then:
+      - text_sensor.template.publish:
+          id: zigbee_state
+          state: Upgrade
       - switch.turn_on: zigbee_bsl_switch
       - delay: 1s
       - script.execute:
@@ -139,9 +142,6 @@ script:
           effect: pulse    
       - logger.log: "Update with cc2538-bsl tool now!"
       - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:6638 -evw firmware.hex"
-      - text_sensor.template.publish:
-          id: zigbee_state
-          state: Upgrade
 
 stream_server:
   uart_id: uart_bus
