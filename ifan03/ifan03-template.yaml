@@ -9,7 +9,7 @@ esphome:
   name_add_mac_suffix: true
   project:
     name: ishioni.ifan03
-    version: "2.1"
+    version: "2.2"
 
 esp8266:
   board: esp01_1m
@@ -17,7 +17,7 @@ esp8266:
 api:
 captive_portal:
 dashboard_import:
-  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@ifan03-2.1
+  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@feat/ifan03-buzzer
 logger:
 ota:
   platform: esphome
@@ -166,6 +166,12 @@ switch:
     icon: mdi:volume-medium
     optimistic: True
     entity_category: config
+  - platform: gpio
+    id: buzzer_test
+    name: Buzzer switch
+    pin: GPIO10
+    restore_mode: RESTORE_DEFAULT_OFF
+    inverted: true
   - platform: gpio
     name: "GPIO 14 Relay"
     pin: GPIO14
