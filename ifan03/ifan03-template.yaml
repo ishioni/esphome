@@ -1,6 +1,7 @@
 substitutions:
   name: ifan03
   friendly_name: ifan03
+  beep_delay: 250ms
 
 esphome:
   name: ${name}
@@ -157,7 +158,7 @@ script:
           then: 
             - output.turn_on: buzzer_out
             - logger.log: "Buzzer on"
-            - delay: 250ms
+            - delay: ${beep_delay}
             - output.turn_off: buzzer_out
             - logger.log: "Buzzer off"
 
