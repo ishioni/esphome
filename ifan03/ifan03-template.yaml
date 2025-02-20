@@ -115,7 +115,7 @@ button:
     on_press:
       then:
         - script.execute: 
-            id: beep_buzzer
+            id: beep
             num_beeps: 3
 
 fan:
