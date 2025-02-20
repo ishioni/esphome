@@ -135,14 +135,14 @@ button:
       then:
         - script.execute: 
             id: beep
-            num_beeps: 3
+            num_beeps: 1
   - platform: template
     name: "Beep 2 Times"
     on_press:
       then:
         - script.execute: 
             id: beep
-            num_beeps: 3
+            num_beeps: 2
   - platform: template
     name: "Beep 3 Times"
     on_press:
