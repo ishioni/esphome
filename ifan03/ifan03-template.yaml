@@ -66,7 +66,7 @@ binary_sensor:
               - script.execute:
                   id: beep
                   num_beeps: 1
-        - fan.turn_off: fan
+        - fan.turn_off: ifan03_fan
   - platform: remote_receiver
     id: remote_low
     raw:
@@ -75,7 +75,7 @@ binary_sensor:
       then:
         - if: *onebeep
         - fan.turn_on:
-            id: fan
+            id: ifan03_fan
             speed: 1
   - platform: remote_receiver
     id: remote_medium
@@ -91,7 +91,7 @@ binary_sensor:
                   id: beep
                   num_beeps: 2
         - fan.turn_on:
-            id: fan
+            id: ifan03_fan
             speed: 2
   - platform: remote_receiver
     id: remote_high
@@ -107,7 +107,7 @@ binary_sensor:
                   id: beep
                   num_beeps: 3
         - fan.turn_on:
-            id: fan
+            id: ifan03_fan
             speed: 3
   - platform: remote_receiver
     id: remote_oscillate
@@ -118,11 +118,11 @@ binary_sensor:
         - if: *onebeep
         - if:
             condition:
-              fan.is_on: fan
+              fan.is_on: ifan03_fan
             then:
               - lambda: |-
-                  auto call = id(fan).turn_on();
-                  if (id(fan).oscillating ) {
+                  auto call = id(ifan03_fan).turn_on();
+                  if (id(ifan03_fan).oscillating ) {
                     call.set_oscillating(false);
                   } else {
                     call.set_oscillating(true);
@@ -138,13 +138,13 @@ fan:
     output: fan_decode
     speed_count: 3
     oscillation_output: oscillation_out
-    id: fan
+    id: ifan03_fan
     icon: mdi:fan
     name: Fan
     on_turn_off:
       - lambda: !lambda |-
-          if (id(fan).oscillating) {
-          auto call = id(fan).turn_off();
+          if (id(ifan03_fan).oscillating) {
+          auto call = id(ifan03_fan).turn_off();
           call.set_oscillating(false);
           call.perform();
           }
