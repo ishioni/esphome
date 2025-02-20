@@ -74,7 +74,7 @@ ethernet:
   power_pin: GPIO12
 
 light:
-  - platform: binary
+  - platform: monochromatic
     id: status_led
     output: led_out
     effects:
@@ -85,7 +85,7 @@ one_wire:
     pin: GPIO16
 
 output:
-  - platform: gpio
+  - platform: ledc
     id: led_out
     pin: GPIO2
     inverted: true
