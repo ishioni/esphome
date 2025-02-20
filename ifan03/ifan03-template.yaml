@@ -1,7 +1,7 @@
 substitutions:
   name: ifan03
   friendly_name: ifan03
-  beep_length: 100ms
+  beep_length: 50ms
   beep_delay: 100ms
 
 esphome:
@@ -18,14 +18,6 @@ esp8266:
   early_pin_init: false
 
 api:
-  actions:
-    - action: buzzer_beep
-      variables:
-        beep_number: int
-      then:
-        - script.execute: 
-            id: beep
-            num_beeps: !lambda 'return beep_number;'
 captive_portal:
 dashboard_import:
   package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@feat/ifan03-buzzer
@@ -49,7 +41,10 @@ binary_sensor:
     on_release:
       then:
         - switch.toggle: buzzer_dummy
-        # - script.execute: beep
+        - script.execute: 
+            id: beep
+            num_beeps: 1
+
 
   - platform: remote_receiver
     id: remote_off
@@ -58,11 +53,13 @@ binary_sensor:
     on_release:
       then:
         - fan.turn_off: ifan03_fan
-        # - if: &beep
-        #     condition:
-        #       switch.is_on: buzzer_dummy
-        #     then:
-        #       - script.execute: beep
+        - if: &onebeep
+            condition:
+              switch.is_on: buzzer_dummy
+            then:
+              - script.execute:
+                  id: beep
+                  num_beeps: 1
 
   - platform: remote_receiver
     id: remote_low
@@ -73,7 +70,7 @@ binary_sensor:
         - fan.turn_on:
             id: ifan03_fan
             speed: 1
-        # - if: *beep
+        - if: *onebeep
 
   - platform: remote_receiver
     id: remote_medium
@@ -84,7 +81,13 @@ binary_sensor:
         - fan.turn_on:
             id: ifan03_fan
             speed: 2
-        # - if: *beep
+        - if:
+            condition:
+              switch.is_on: buzzer_dummy
+            then:
+              - script.execute:
+                  id: beep
+                  num_beeps: 2
 
   - platform: remote_receiver
     id: remote_high
@@ -95,7 +98,13 @@ binary_sensor:
         - fan.turn_on:
             id: ifan03_fan
             speed: 3
-        # - if: *beep
+        - if:
+            condition:
+              switch.is_on: buzzer_dummy
+            then:
+              - script.execute:
+                  id: beep
+                  num_beeps: 3
 
   - platform: remote_receiver
     id: remote_oscillate
@@ -115,11 +124,25 @@ binary_sensor:
                     call.set_oscillating(true);
                   }
                   call.perform();
-        # - if: *beep
+        - if: *onebeep
 
 button:
   - platform: restart
     name: "Reboot"
+  - platform: template
+    name: "Beep 1 Time"
+    on_press:
+      then:
+        - script.execute: 
+            id: beep
+            num_beeps: 3
+  - platform: template
+    name: "Beep 2 Times"
+    on_press:
+      then:
+        - script.execute: 
+            id: beep
+            num_beeps: 3
   - platform: template
     name: "Beep 3 Times"
     on_press:
@@ -155,7 +178,7 @@ script:
     mode: restart
     then:
       - repeat:
-          count: !lambda 'return num_beeps;'
+          count: !lambda return num_beeps;
           then: 
             - output.turn_on: buzzer_out
             - delay: ${beep_length}
