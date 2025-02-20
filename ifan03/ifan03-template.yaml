@@ -253,4 +253,3 @@ output:
     pin: GPIO10
     id: buzzer_out
     inverted: true
-    
