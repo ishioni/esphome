@@ -139,6 +139,9 @@ script:
           effect: pulse    
       - logger.log: "Update with cc2538-bsl tool now!"
       - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:6638 -evw firmware.hex"
+      - text_sensor.template.publish:
+          id: zigbee_state
+          state: Upgrade
 
 stream_server:
   uart_id: uart_bus
