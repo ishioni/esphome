@@ -157,7 +157,7 @@ script:
           then: 
             - output.turn_on: buzzer_out
             - logger.log: "Buzzer on"
-            - delay: 50ms
+            - delay: 250ms
             - output.turn_off: buzzer_out
             - logger.log: "Buzzer off"
 
