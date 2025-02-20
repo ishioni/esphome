@@ -76,7 +76,7 @@ ethernet:
   power_pin: GPIO12
 
 light:
-  - platform: binary_light
+  - platform: binary
     id: status_led
     effect:
       - pulse:
