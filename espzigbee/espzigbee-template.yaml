@@ -76,9 +76,9 @@ ethernet:
 light:
   - platform: binary
     id: status_led
-    effect:
+    output: led_out
+    effects:
       - pulse:
-
 
 one_wire:
   - platform: gpio
