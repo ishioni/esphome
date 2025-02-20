@@ -18,14 +18,20 @@ esp8266:
   early_pin_init: false
 
 api:
+
 captive_portal:
+
 dashboard_import:
-  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@feat/ifan03-buzzer
+  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@ifan03-v2.2
+
 logger:
+
 ota:
   platform: esphome
+
 web_server:
   port: 80
+
 wifi:
   ap:
 
@@ -33,7 +39,6 @@ binary_sensor:
   - platform: status
     device_class: connectivity
     name: Status
-    
   - platform: remote_receiver
     id: remote_buzzer
     raw:
@@ -41,18 +46,19 @@ binary_sensor:
     on_release:
       then:
         - switch.toggle: buzzer_dummy
-        - script.execute: 
-            id: beep
-            num_beeps: 1
-
-
+        - if:
+            condition:
+              switch.is_on: buzzer_dummy
+            then:
+              - script.execute: 
+                  id: beep
+                  num_beeps: 1
   - platform: remote_receiver
     id: remote_off
     raw:
       code: [-207, 104, -103, 104, -104, 103, -104, 207, -104, 103, -104, 104, -103, 104, -104, 103, -104, 105, -102, 104, -725, 104, -311, 103, -518, 104, -933, 103, -104, 104, -725, 104, -932, 104, -207, 207, -519]
     on_release:
       then:
-        - fan.turn_off: ifan03_fan
         - if: &onebeep
             condition:
               switch.is_on: buzzer_dummy
@@ -60,27 +66,23 @@ binary_sensor:
               - script.execute:
                   id: beep
                   num_beeps: 1
-
+        - fan.turn_off: fan
   - platform: remote_receiver
     id: remote_low
     raw:
       code: [-207, 104, -104, 103, -104, 104, -103, 207, -104, 104, -103, 104, -104, 103, -104, 104, -103, 104, -104, 103, -726, 103, -312, 103, -518, 104, -933, 103, -104, 104, -725, 104, -103, 104, -726, 103, -104, 311, -518]
     on_release:
       then:
-        - fan.turn_on:
-            id: ifan03_fan
-            speed: 1
         - if: *onebeep
-
+        - fan.turn_on:
+            id: fan
+            speed: 1
   - platform: remote_receiver
     id: remote_medium
     raw:
       code: [-208, 103, -104, 104, -103, 104, -103, 208, -103, 104, -104, 103, -104, 104, -103, 104, -104, 103, -104, 103, -726, 104, -310, 104, -518, 104, -933, 103, -104, 104, -725, 104, -207, 104, -622, 103, -416, 102, -415]
     on_release:
       then:
-        - fan.turn_on:
-            id: ifan03_fan
-            speed: 2
         - if:
             condition:
               switch.is_on: buzzer_dummy
@@ -88,16 +90,15 @@ binary_sensor:
               - script.execute:
                   id: beep
                   num_beeps: 2
-
+        - fan.turn_on:
+            id: fan
+            speed: 2
   - platform: remote_receiver
     id: remote_high
     raw:
       code: [-207, 104, -104, 103, -104, 104, -103, 208, -103, 104, -104, 103, -104, 104, -103, 104, -104, 103, -104, 103, -726, 104, -311, 104, -518, 103, -934, 103, -103, 104, -726, 103, -104, 207, -622, 104, -103, 104, -207, 104, -415]
     on_release:
       then:
-        - fan.turn_on:
-            id: ifan03_fan
-            speed: 3
         - if:
             condition:
               switch.is_on: buzzer_dummy
@@ -105,64 +106,45 @@ binary_sensor:
               - script.execute:
                   id: beep
                   num_beeps: 3
-
+        - fan.turn_on:
+            id: fan
+            speed: 3
   - platform: remote_receiver
     id: remote_oscillate
     raw:
       code: [-207, 104, -103, 104, -104, 103, -104, 207, -104, 103, -104, 104, -103, 104, -103, 104, -104, 103, -104, 104, -725, 104, -311, 103, -518, 104, -933, 103, -104, 103, -726, 103, -311, 104, -518, 104, -207, 104, -103, 104, -414]
     on_release:
       then:
+        - if: *onebeep
         - if:
             condition:
-              fan.is_on: ifan03_fan
+              fan.is_on: fan
             then:
               - lambda: |-
-                  auto call = id(ifan03_fan).turn_on();
-                  if (id(ifan03_fan).oscillating ) {
+                  auto call = id(fan).turn_on();
+                  if (id(fan).oscillating ) {
                     call.set_oscillating(false);
                   } else {
                     call.set_oscillating(true);
                   }
                   call.perform();
-        - if: *onebeep
 
 button:
   - platform: restart
     name: "Reboot"
-  - platform: template
-    name: "Beep 1 Time"
-    on_press:
-      then:
-        - script.execute: 
-            id: beep
-            num_beeps: 1
-  - platform: template
-    name: "Beep 2 Times"
-    on_press:
-      then:
-        - script.execute: 
-            id: beep
-            num_beeps: 2
-  - platform: template
-    name: "Beep 3 Times"
-    on_press:
-      then:
-        - script.execute: 
-            id: beep
-            num_beeps: 3
 
 fan:
   - platform: speed
     output: fan_decode
     speed_count: 3
     oscillation_output: oscillation_out
-    id: ifan03_fan
+    id: fan
     icon: mdi:fan
     name: Fan
     on_turn_off:
       - lambda: !lambda |-
-          if (id(ifan03_fan).oscillating) {
-          auto call = id(ifan03_fan).turn_off();
+          if (id(fan).oscillating) {
+          auto call = id(fan).turn_off();
           call.set_oscillating(false);
           call.perform();
           }
@@ -263,12 +245,10 @@ output:
             id(gpio12sw).turn_off();
             id(gpio15sw).turn_on();
           }
-
   - platform: gpio
     pin: GPIO9
     id: oscillation_out
     inverted: true
-
   - platform: gpio
     pin: GPIO10
     id: buzzer_out
