@@ -1,7 +1,8 @@
 substitutions:
   name: ifan03
   friendly_name: ifan03
-  beep_delay: 250ms
+  beep_length: 100ms
+  beep_delay: 100ms
 
 esphome:
   name: ${name}
@@ -157,10 +158,9 @@ script:
           count: !lambda 'return num_beeps;'
           then: 
             - output.turn_on: buzzer_out
-            - logger.log: "Buzzer on"
-            - delay: ${beep_delay}
+            - delay: ${beep_length}
             - output.turn_off: buzzer_out
-            - logger.log: "Buzzer off"
+            - delay: ${beep_delay}
 
 sensor:
   - platform: wifi_signal
