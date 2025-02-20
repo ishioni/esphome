@@ -56,7 +56,9 @@ button:
     device_class: restart
     id: zigbee_reset
     on_press:
-      - script.execute: zigbee_reset_script
+      - script.execute: 
+          id: zigbee_reset_script
+          publish_state: true
   - platform: template
     name: Zigbee update
     entity_category: config
