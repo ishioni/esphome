@@ -79,7 +79,7 @@ light:
   - platform: status_led
     ping: GPIO2
     inverted: true
-    id: status_led
+    id: statusled
     effects:
       - blink:
         name: Blink
@@ -167,10 +167,10 @@ switch:
     optimistic: true
     on_turn_on: 
       - light.turn_on: 
-        id: status_led
+        id: statusled
     on_turn_off:
       - light.turn_off:
-        id: status_led
+        id: statusled
 
 text_sensor:
   - platform: template
