@@ -94,6 +94,7 @@ light:
 
 one_wire:
   - platform: gpio
+    id: 1wirebus
     pin: GPIO16
 
 sensor:
