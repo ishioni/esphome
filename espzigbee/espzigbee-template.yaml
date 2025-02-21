@@ -42,8 +42,12 @@ binary_sensor:
     device_class: connectivity
     name: Status
   - platform: stream_server
+    stream_server: zigbee_stream
     connected:
       name: Zigbee connected
+      on_press:
+        then:
+          - light.turn_on: amber_led
 
 button:
   - platform: restart
@@ -120,8 +124,6 @@ script:
       - delay: 1s
       - switch.turn_off: zigbee_reset_switch
       - logger.log: "Zigbee reset"
-      - light.turn_on:
-          id: amber_led
       - if:
           condition:
             lambda: 'return publish_state;'
@@ -149,6 +151,7 @@ script:
       - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:6638 -evw firmware.hex"
 
 stream_server:
+  id: zigbee_stream
   uart_id: uart_bus
   buffer_size: 2048
   port: 6638
