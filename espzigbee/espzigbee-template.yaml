@@ -80,7 +80,7 @@ i2c:
 
 light:
   - platform: status_led
-    pin: GPIO2
+    pin: GPIO3
     id: statusled
     effects:
       - strobe:
