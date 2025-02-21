@@ -73,6 +73,11 @@ ethernet:
   phy_addr: 1
   power_pin: GPIO12
 
+i2c:
+  sda: 14
+  scl: 13
+  id: i2cbus
+
 light:
   - platform: status_led
     pin: GPIO2
