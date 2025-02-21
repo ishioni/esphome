@@ -82,7 +82,7 @@ light:
       inverted: true
     id: statusled
     effects:
-      - blink:
+      - strobe:
         name: Blink
         colors:
           - state: true
@@ -142,7 +142,7 @@ script:
       - switch.turn_off: zigbee_bsl_switch
       - light.turn_on:
           id: statusled
-          effect: blink    
+          effect: Blink    
       - logger.log: "Update with cc2538-bsl tool now!"
       - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:6638 -evw firmware.hex"
 
