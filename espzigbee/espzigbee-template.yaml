@@ -76,7 +76,7 @@ ethernet:
 i2c:
   sda: 14
   scl: 13
-  id: i2cbus
+  id: i2c_bus
 
 light:
   - platform: status_led
@@ -94,7 +94,7 @@ light:
 
 one_wire:
   - platform: gpio
-    id: onewirebus
+    id: onewire_bus
     pin: GPIO16
 
 sensor:
