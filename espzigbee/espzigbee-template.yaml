@@ -83,13 +83,13 @@ light:
     id: statusled
     effects:
       - strobe:
-        name: Blink
-        colors:
-          - state: true
-            brightness: 100%
-            duration: 100ms
-          - state: false
-            duration: 2s
+          name: Blink
+          colors:
+            - state: true
+              brightness: 100%
+              duration: 100ms
+            - state: false
+              duration: 2s
 
 one_wire:
   - platform: gpio
