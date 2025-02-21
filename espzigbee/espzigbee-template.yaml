@@ -164,14 +164,12 @@ switch:
     restore_mode: ALWAYS_OFF
   - platform: template
     id: light_debug
-    Name: Light debug
+    name: Light debug
     optimistic: true
     on_turn_on: 
-      - light.turn_on: 
-        id: statusled
+      - light.turn_on: statusled
     on_turn_off:
-      - light.turn_off:
-        id: statusled
+      - light.turn_off: statusled
 
 text_sensor:
   - platform: template
