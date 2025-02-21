@@ -77,7 +77,7 @@ ethernet:
 
 light:
   - platform: status_led
-    ping: GPIO2
+    pin: GPIO2
     inverted: true
     id: statusled
     effects:
