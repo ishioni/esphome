@@ -77,8 +77,9 @@ ethernet:
 
 light:
   - platform: status_led
-    pin: GPIO2
-    inverted: true
+    pin:
+      number: GPIO2
+      inverted: true
     id: statusled
     effects:
       - blink:
