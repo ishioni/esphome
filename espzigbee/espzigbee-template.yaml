@@ -18,7 +18,7 @@ esphome:
             id: zigbee_reset_script
             publish_state: true
         - light.turn_on:
-            id: status_led
+            id: statusled
 
 esp32:
   board: esp32dev
@@ -113,12 +113,12 @@ script:
                 state: Rebooting
       - switch.turn_on: zigbee_reset_switch
       - light.turn_off:
-          id: status_led
+          id: statusled
       - delay: 1s
       - switch.turn_off: zigbee_reset_switch
       - logger.log: "Zigbee reset"
       - light.turn_on:
-          id: status_led
+          id: statusled
       - if:
           condition:
             lambda: 'return publish_state;'
@@ -140,7 +140,7 @@ script:
       - delay: 10s
       - switch.turn_off: zigbee_bsl_switch
       - light.turn_on:
-          id: status_led
+          id: statusled
           effect: blink    
       - logger.log: "Update with cc2538-bsl tool now!"
       - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:6638 -evw firmware.hex"
