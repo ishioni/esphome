@@ -17,8 +17,6 @@ esphome:
         - script.execute: 
             id: zigbee_reset_script
             publish_state: true
-        - light.turn_on:
-            id: statusled
 
 esp32:
   board: esp32dev
@@ -77,19 +75,17 @@ ethernet:
 
 light:
   - platform: status_led
-    pin:
-      number: GPIO2
-      inverted: true
+    pin: GPIO2
     id: statusled
     effects:
       - strobe:
-          name: Blink
+          name: blink
           colors:
             - state: true
               brightness: 100%
-              duration: 100ms
+              duration: 500ms
             - state: false
-              duration: 2s
+              duration: 500ms
 
 one_wire:
   - platform: gpio
@@ -142,7 +138,7 @@ script:
       - switch.turn_off: zigbee_bsl_switch
       - light.turn_on:
           id: statusled
-          effect: Blink    
+          effect: blink    
       - logger.log: "Update with cc2538-bsl tool now!"
       - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:6638 -evw firmware.hex"
 
@@ -162,14 +158,6 @@ switch:
     id: zigbee_bsl_switch
     inverted: yes
     restore_mode: ALWAYS_OFF
-  - platform: template
-    id: light_debug
-    name: Light debug
-    optimistic: true
-    on_turn_on: 
-      - light.turn_on: statusled
-    on_turn_off:
-      - light.turn_off: statusled
 
 text_sensor:
   - platform: template
