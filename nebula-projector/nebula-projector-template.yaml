@@ -110,16 +110,6 @@ button:
     id: button_reboot
     name: Reboot
 
-text_sensor:
-  - platform: debug
-    device:
-      name: "Device Info"
-    reset_reason:
-      name: "Reset Reason"
-
-debug:
-  update_interval: 5s
-
 sensor:
   - platform: wifi_signal
     id: wifi_signal_db
@@ -141,15 +131,6 @@ sensor:
     name: "VCC Voltage"
     entity_category: "diagnostic"
     device_class: "voltage"
-  - platform: debug
-    free:
-      name: "Heap Free"
-    fragmentation:
-      name: "Heap Fragmentation"
-    block:
-      name: "Heap Max Block"
-    loop_time:
-      name: "Loop Time"
 
 light:
   - platform: status_led
