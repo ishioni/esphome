@@ -161,20 +161,8 @@ light:
     green: green_gpio
     blue: blue_gpio
     restore_mode: ALWAYS_OFF
-    # on_turn_on:
-    #   - if:
-    #       condition:
-    #         - number.in_range:
-    #             id: motor_speed
-    #             above: 1
-    #       then:
-    #         - light.turn_on:
-    #             id: motor
-    #             brightness: !lambda |-
-    #               return (id(motor_speed).state / 10.0) + 0.2;
-    #             transition_length: 0s
     on_turn_on:
-      - if: # Consider the motor setting
+      - if: # Consider the motor
           condition:
             - lambda: return id(motor_speed).state >= 1;
           then:
@@ -185,9 +173,19 @@ light:
       - servo.write: 
           id: motor_servo
           level: 0.0 # Turn of the motor
+      - light.turn_off: laser_light
+    on_state_change:
+      - if:
+        condition:
+          - lambda: return id(laser_switch).state;
+        then:
+          - light.control:
+              id: laser_light
+              state: !lambda return id(rgb_light).state;
+              brightness: !lambda return id(rgb_light).brightness;
   - platform: monochromatic
     name: Laser light
-    id: laser
+    id: laser_light
     icon: mdi:laser-pointer
     output: laser_gpio
     restore_mode: ALWAYS_OFF
@@ -217,6 +215,14 @@ servo:
   - id: motor_servo
     output: motor_gpio
     max_level: 100%
+
+switch:
+  - platform: template
+    id: laser_switch
+    name: Laser
+    icon: mdi:laser-pointer
+    optimistic: true
+    entity_category: config
 
 output:
   - platform: esp8266_pwm
