@@ -158,9 +158,9 @@ light:
     name: Nebula light
     id: rgb_light
     icon: mdi:projector
-    red: nebula_red
-    green: nebula_green
-    blue: nebula_blue
+    red: red_gpio
+    green: green_gpio
+    blue: blue_gpio
     restore_mode: ALWAYS_OFF
     on_turn_on:
       - if:
@@ -186,7 +186,7 @@ light:
   - platform: monochromatic
     name: Rotation
     id: motor
-    output: motor_pwm
+    output: motor_gpio
     restore_mode: ALWAYS_OFF
     internal: true
   # - platform: monochromatic
@@ -205,47 +205,65 @@ light:
 number:
   - platform: template
     id: motor_speed
-    name: ${name} motor speed
+    name: Motor speed
     icon: mdi:cog-clockwise
     entity_category: config
     optimistic: true
     restore_value: true
     step: 1
-    max_value: 6
-    min_value: 0
-    on_value:
-      then:
+    max_value: 100.0
+    min_value: 0.0
+    initial_value: 0.0
+    set_action:
       - if:
           condition:
-            - number.in_range:
-                id: motor_speed
-                above: 1
-            - light.is_on: rgb_light
+            - lambda: |-
+                return x >=1;
           then:
-            - light.turn_on:
-                id: motor
-                brightness: !lambda |-
-                  return (id(motor_speed).state / 10.0) + 0.2;
-                transition_length: 0s
+            - servo.write:
+                id: main_servo
+                level: !lambda return (x + random_float()) * 0.01; #New
+                # level: !lambda return (x * 0.01) + random_float()* 0.01; #Old
           else:
-            - light.turn_off:
-                id: motor
+            - output.turn_off: motor_gpio
+    # on_value:
+    #   then:
+    #   - if:
+    #       condition:
+    #         - number.in_range:
+    #             id: motor_speed
+    #             above: 1
+    #         - light.is_on: rgb_light
+    #       then:
+    #         - light.turn_on:
+    #             id: motor
+    #             brightness: !lambda |-
+    #               return (id(motor_speed).state / 10.0) + 0.2;
+    #             transition_length: 0s
+    #       else:
+    #         - light.turn_off:
+    #             id: motor
+
+servo:
+  - id: motor_servo
+    output: motor_gpio
+    max_level: 100%
 
 output:
   - platform: esp8266_pwm
-    id: nebula_red
+    id: red_gpio
     pin: GPIO4
     inverted: true
     min_power: 0.1
     zero_means_zero: true
   - platform: esp8266_pwm
-    id: nebula_green
+    id: green_gpio
     pin: GPIO12
     inverted: true
     min_power: 0.1
     zero_means_zero: true
   - platform: esp8266_pwm
-    id: nebula_blue
+    id: blue_gpio
     pin: GPIO14
     inverted: true
     min_power: 0.1
@@ -259,9 +277,10 @@ output:
     frequency: 2000 Hz
     inverted: true
   - platform: esp8266_pwm
-    id: motor_pwm
+    id: motor_gpio
     pin: GPIO13
-    min_power: 0.15
+    frequency: 8Hz
+    # min_power: 0.15
   - platform: template
     id: case_gpio
     type: binary
