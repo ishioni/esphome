@@ -94,22 +94,6 @@ sensor:
     entity_category: "diagnostic"
     device_class: "voltage"
 
-switch:
-  - platform: template
-    id: case_switch_1
-    name: Case switch 1
-    turn_on_action:
-      - light.turn_on: case_led_1
-    turn_off_action:
-      - light.turn_off: case_led_1
-  - platform: template
-    id: case_switch_2
-    name: Case switch 2
-    turn_on_action:
-      - light.turn_on: case_led_2
-    turn_off_action:
-      - light.turn_off: case_led_2
-
 light:
   - platform: binary
     name: Case LED 1
@@ -222,7 +206,9 @@ output:
   - platform: gpio
     id: case_gpio_1
     pin: GPIO0
+    inverted: true
   - platform: gpio
     id: case_gpio_2
     pin: GPIO15
+    inverted: true
 
