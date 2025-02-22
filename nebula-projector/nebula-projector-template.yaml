@@ -64,14 +64,14 @@ binary_sensor:
           - logger.log: "Single short click"
           - light.toggle: rgb_light
       - timing:
-          - ON for at least 3s
+          - ON for 2s to 5s
         then:
           - logger.log: "slow blink"
           - light.turn_on:
               id: case_led
               effect: Slow blink
       - timing:
-          - ON for 3s to 5s
+          - ON for 2s to 5s
           - OFF for at least 0.2s
         then:
           - logger.log: "Long click"
@@ -84,10 +84,17 @@ binary_sensor:
               id: case_led
               effect: Fast blink
       - timing:
-          - ON for at least 6s
+          - ON for at least 10s
+          - light.turn_on:
+              id: case_led
+              effect: none
+      - timing:
+          - ON for at least 10s
           - OFF for at least 0.2s
         then:
           - logger.log: "Very long click"
+          - light.turn_off:
+              id: case_led
 
 button:
   - platform: restart
@@ -133,9 +140,9 @@ light:
           colors:
             - state: true
               brightness: 100%
-              duration: 200ms
+              duration: 150ms
             - state: false
-              duration: 200ms
+              duration: 150ms
   - platform: rgb
     name: Nebula light
     id: rgb_light
