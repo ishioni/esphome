@@ -57,16 +57,33 @@ binary_sensor:
       inverted: true
     name: Short press
     on_multi_click:
+      - timings:
+          - ON for at least 0.1s
+        then:
+          - logger: "slow blink"
+          - light.turn_on:
+              id: case_led
+              effect: Slow blink
       - timing:
           - ON for at most 1s
           - OFF for at least 0.2s
         then:
           - logger.log: "Single short click"
+          - light.turn_off:
+              id: case_led
+      - timing:
+          - ON for at least 1s
+        then:
+          - logger.log: "fast blink"
+          - light.turn_on:
+              id: case_led
+              effect: Fast blink
       - timing:
           - ON for 1s to 3s
           - OFF for at least 0.2s
         then:
           - logger.log: "Long click"
+          - light.turn_off: case_led
       - timing:
           - ON for at least 6s
           - OFF for at least 0.2s
@@ -101,7 +118,7 @@ sensor:
 
 light:
   - platform: status_led
-    id: case_horizontal_led
+    id: case_led
     output: case_gpio
     effects:
       - strobe:
