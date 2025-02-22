@@ -227,7 +227,7 @@ number:
     step: 1
     max_value: 6
     min_value: 0
-    initial_value: 0
+    initial_value: 3
     set_action:
       - if:
           condition:
