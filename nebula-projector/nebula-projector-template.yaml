@@ -207,15 +207,11 @@ number:
     set_action:
       - if:
           condition:
-            and:
-              - lambda: return x >= 1;
-              - light.is_on: rgb_light
+            - light.is_on: rgb_light
           then:
             - servo.write:
                 id: motor_servo
                 level: !lambda return x * (1.0f / 6.0f);
-          else:
-            - output.turn_off: motor_gpio
 
 servo:
   - id: motor_servo
