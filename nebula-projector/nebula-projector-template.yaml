@@ -179,6 +179,7 @@ light:
           condition:
             - lambda: return id(laser_switch).state;
           then:
+            - delay: 1s
             - light.control:
                 id: laser_light
                 state: !lambda return id(rgb_light).current_values.is_on();
