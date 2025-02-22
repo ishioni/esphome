@@ -117,6 +117,9 @@ text_sensor:
     reset_reason:
       name: "Reset Reason"
 
+debug:
+  update_interval: 5s
+
 sensor:
   - platform: wifi_signal
     id: wifi_signal_db
