@@ -57,7 +57,7 @@ binary_sensor:
       inverted: true
     name: Short press
     on_multi_click:
-      - timings:
+      - timing:
           - ON for at least 0.1s
         then:
           - logger: "slow blink"
