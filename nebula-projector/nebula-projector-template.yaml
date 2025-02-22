@@ -1,76 +1,53 @@
+# GPIO0 	LED outside case
+# GPIO4 	Red
+# GPIO5 	Laser
+# GPIO12 	Green
+# GPIO13 	Motor
+# GPIO14 	Blue
+# GPIO15 	LED outside case
+# GPIO16 	Button
+
 substitutions:
   name: nebula-projector
+  friendly_name: Nebula projector
 
 esphome:
   name: ${name}
-  comment: Tuya nebula projector
+  friendly_name: ${friendly_name}
+  comment: ESP8266 Nebula projector
   name_add_mac_suffix: true
   project:
     name: ishioni.nebula_projector
-    version: "1.0"
+    version: "2.2"
 
 esp8266:
   board: esp12e
-  restore_from_flash: true
+  early_pin_init: false
+  restore_from_flash: false
 
-logger:
-  
 api:
-
-ota:
-  platform: esphome
-
-wifi:
-  ap:
 
 captive_portal:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@master
+  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@feat/nebula-v2
+
+logger:
+  
+ota:
+  platform: esphome
 
 web_server:
   port: 80
   include_internal: true
 
-sensor:
-  - platform: wifi_signal
-    name: ${name} signal
-    disabled_by_default: true
-  - platform: uptime
-    name: ${name} uptime
-    id: uptime_sensor
-    update_interval: 60s
-    disabled_by_default: true
-    on_raw_value:
-      then:
-        - text_sensor.template.publish:
-            id: uptime_human
-            state: !lambda |-
-              int seconds = round(id(uptime_sensor).raw_state);
-              int days = seconds / (24 * 3600);
-              seconds = seconds % (24 * 3600);
-              int hours = seconds / 3600;
-              seconds = seconds % 3600;
-              int minutes = seconds /  60;
-              seconds = seconds % 60;
-              return (
-                (days ? to_string(days) + "d " : "") +
-                (hours ? to_string(hours) + "h " : "") +
-                (minutes ? to_string(minutes) + "m " : "") +
-                (to_string(seconds) + "s")
-              ).c_str();
-
-text_sensor:
-  - platform: template
-    name: ${name} uptime human readable
-    entity_category: diagnostic
-    disabled_by_default: true
-    id: uptime_human
-    icon: mdi:clock-start
+wifi:
+  ap:
 
 binary_sensor:
   - platform: status
-    name: ${name} status
+    device_class: connectivity
+    name: Status
   - platform: gpio
     pin: 
       number: GPIO16
@@ -91,28 +68,69 @@ binary_sensor:
         - light.turn_off: 
             id: laser
 
+button:
+  - platform: restart
+    name: Reboot
+
+sensor:
+  - platform: wifi_signal
+    id: wifi_signal_db
+    update_interval: 10s
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "WiFi signal"
+    icon: mdi:wifi-strength-1
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    entity_category: "diagnostic"
+    device_class: ""
+  - platform: uptime
+    name: Uptime
+    entity_category: "diagnostic"
+  - platform: adc
+    pin: VCC
+    name: "VCC Voltage"
+    entity_category: "diagnostic"
+    device_class: "voltage"
+
+switch:
+  - platform: template
+    id: case_switch_1
+    name: Case switch 1
+    on_turn_on:
+      then:
+        - light.turn_on: case_led_1
+    on_turn_off:
+      then:
+        - light.turn_off: case_led_1
+  - platform: template
+    id: case_switch_2
+    name: Case switch 2
+    on_turn_on:
+      then:
+        - light.turn_on: case_led_2
+    on_turn_off:
+      then:
+        - light.turn_off: case_led_2
+
 light:
+  - platform: binary
+    name: Case LED 1
+    id: case_led_1
+    output: case_gpio_1
+  - platform: binary
+    name: Case LED 2
+    id: case_led_2
+    output: case_gpio_2
   - platform: rgb
-    name: ${name} light
+    name: Nebula light
     id: rgb_light
     icon: mdi:projector
-    red: red
-    green: green
-    blue: blue
+    red: nebula_red
+    green: nebula_green
+    blue: nebula_blue
     restore_mode: ALWAYS_OFF
-    effects:
-      - flicker:
-          name: Flicker
-          alpha: 95%
-          intensity: 2.5%
-      - random:
-          name: Random
-          transition_length: 2.5s
-          update_interval: 3s
-      - random:
-          name: Random Slow
-          transition_length: 10s
-          update_interval: 5s
     on_turn_on:
       - if:
           condition:
@@ -129,13 +147,13 @@ light:
       - light.turn_off:
           id: motor
   - platform: monochromatic
-    name: ${name} laser
+    name: Laser light
     id: laser
     icon: mdi:laser-pointer
     output: laser_pwm
     restore_mode: ALWAYS_OFF
   - platform: monochromatic
-    name: ${name} motor
+    name: Rotation
     id: motor
     output: motor_pwm
     restore_mode: ALWAYS_OFF
@@ -182,47 +200,17 @@ number:
             - light.turn_off:
                 id: motor
 
-button:
-  - platform: restart
-    name: ${name} restart
-
-# interval:
-#   - interval: 60s
-#     then:
-#       if:
-#         condition:
-#           wifi.connected:
-#         then:
-#           - light.turn_on: 
-#               id: bled
-#               brightness: 50%
-#         else:
-#           - light.turn_off: 
-#               id: bled
-#   - interval: 60s
-#     then:
-#       if:
-#         condition:
-#           api.connected:
-#         then:
-#           - light.turn_on: 
-#               id: rled
-#               brightness: 50%
-#         else:
-#           - light.turn_off: 
-#               id: rled
-
 output:
   - platform: esp8266_pwm
-    id: red
+    id: nebula_red
     pin: GPIO4
     inverted: true
   - platform: esp8266_pwm
-    id: green
+    id: nebula_green
     pin: GPIO12
     inverted: true
   - platform: esp8266_pwm
-    id: blue
+    id: nebula_blue
     pin: GPIO14
     inverted: true
   - platform: esp8266_pwm
@@ -235,12 +223,10 @@ output:
     id: motor_pwm
     pin: GPIO13
     min_power: 0.15
-  # - platform: esp8266_pwm
-  #   id: bled_pwm
-  #   pin: GPIO0
-  #   inverted: true
-  # - platform: esp8266_pwm
-  #   id: rled_pwm
-  #   pin: GPIO15
-  #   inverted: true
+  - platform: gpio
+    id: case_gpio_1
+    pin: GPIO0
+  - platform: gpio
+    id: case_gpio_2
+    pin: GPIO15
 
