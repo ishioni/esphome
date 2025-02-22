@@ -95,10 +95,27 @@ sensor:
     device_class: "voltage"
 
 light:
-  - platform: binary
+  - platform: status_led
     name: Case LEDs
     id: case_horizontal_led
     output: case_gpio
+    effects:
+      - strobe:
+          name: Slow blink
+          colors:
+            - state: true
+              brightness: 100%
+              duration: 500ms
+            - state: false
+              duration: 500ms
+      - strobe:
+          name: Fast blink
+          colors:
+            - state: true
+              brightness: 100%
+              duration: 200ms
+            - state: false
+              duration: 200ms
   - platform: rgb
     name: Nebula light
     id: rgb_light
