@@ -61,81 +61,58 @@ binary_sensor:
           - ON for at most 1s
           - OFF for at least 0.2s
         then:
-          - logger.log: "Single short click"
+          - logger.log: LED toggle
           - light.toggle: rgb_light
       - timing: # LED for power off
           - ON for at least 2s
         then:
-          - logger.log: "slow blink"
           - light.turn_on:
-              id: case_led
+              id: status_led
               effect: Slow blink
       - timing: # Power off
           - ON for 2s to 5s
           - OFF for at least 0.2s
         then:
-          - logger.log: "Shutdown"
-          - light.turn_off: case_led
+          - logger.log: LED off
           - light.turn_off: rgb_light
-          # - light.turn_off: laser
       - timing: # LED for reboot
           - ON for at least 5s
         then:
-          - logger.log: "fast blink"
           - light.turn_on:
-              id: case_led
+              id: status_led
               effect: Fast blink
       - timing: # Reboot
-          - ON for 5s to 9s
+          - ON for 5s to 29s
         then:
-          - logger.log: cancelled
+          - logger.log: Reboot
           - button.press: button_reboot
       - timing: # LED for factory reset
-          - ON for at least 10s
+          - ON for at least 30s
         then:
           - light.turn_on:
-              id: case_led
+              id: status_led
               effect: none
       - timing: # Factory reset
-          - ON for at least 10s
+          - ON for at least 30s
           - OFF for at least 0.2s
         then:
-          - logger.log: "Very long click"
+          - logger.log: Factory reset
           - light.turn_off:
-              id: case_led
-          - logger.log: "Factory reset here"
+              id: status_led
+          - logger.log: FACTORY RESET
+          # - button.press: button_factory_reset
 
 button:
   - platform: restart
     id: button_reboot
     name: Reboot
-
-sensor:
-  - platform: wifi_signal
-    id: wifi_signal_db
-    update_interval: 10s
-  - platform: copy
-    source_id: wifi_signal_db
-    name: "WiFi signal"
-    icon: mdi:wifi-strength-1
-    filters:
-      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
-    unit_of_measurement: "%"
-    entity_category: "diagnostic"
-    device_class: ""
-  - platform: uptime
-    name: Uptime
-    entity_category: "diagnostic"
-  - platform: adc
-    pin: VCC
-    name: "VCC Voltage"
-    entity_category: "diagnostic"
-    device_class: "voltage"
+  - platform: factory_reset
+    id: button_factory_reset
 
 light:
   - platform: status_led
-    id: case_led
-    output: case_gpio
+    id: status_led
+    output: status_gpio
     effects:
       - strobe:
           name: Slow blink
@@ -185,32 +162,31 @@ light:
                 state: !lambda return id(rgb_light).current_values.is_on();
                 brightness: !lambda return id(rgb_light).current_values.get_brightness();
   - platform: monochromatic
-    name: Laser light
     id: laser_light
-    icon: mdi:laser-pointer
     output: laser_gpio
     restore_mode: ALWAYS_OFF
 
-number:
-  - platform: template
-    id: motor_speed
-    name: Motor speed
-    icon: mdi:cog-clockwise
-    entity_category: config
-    optimistic: true
-    restore_value: true
-    step: 1
-    max_value: 6
-    min_value: 0
-    initial_value: 0
-    set_action:
-      - if:
-          condition:
-            - light.is_on: rgb_light
-          then:
-            - servo.write:
-                id: motor_servo
-                level: !lambda return x * (1.0f / 6.0f);
+sensor:
+  - platform: wifi_signal
+    id: wifi_signal_db
+    update_interval: 10s
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "WiFi signal"
+    icon: mdi:wifi-strength-1
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    entity_category: "diagnostic"
+    device_class: ""
+  - platform: uptime
+    name: Uptime
+    entity_category: "diagnostic"
+  - platform: adc
+    pin: VCC
+    name: "VCC Voltage"
+    entity_category: "diagnostic"
+    device_class: "voltage"
 
 servo:
   - id: motor_servo
@@ -239,6 +215,27 @@ switch:
             - lambda: return id(rgb_light).current_values.is_on();
           then:
             - light.turn_off: laser_light
+
+number:
+  - platform: template
+    id: motor_speed
+    name: Motor speed
+    icon: mdi:cog-clockwise
+    entity_category: config
+    optimistic: true
+    restore_value: true
+    step: 1
+    max_value: 6
+    min_value: 0
+    initial_value: 0
+    set_action:
+      - if:
+          condition:
+            - light.is_on: rgb_light
+          then:
+            - servo.write:
+                id: motor_servo
+                level: !lambda return x * (1.0f / 6.0f);
 
 output:
   - platform: esp8266_pwm
@@ -273,24 +270,24 @@ output:
     frequency: 8Hz
     # min_power: 0.15
   - platform: template
-    id: case_gpio
+    id: status_gpio
     type: binary
     write_action:
       - if:
           condition:
             lambda: "return state;"
           then:
-            - output.turn_on: case_horizontal_gpio
-            - output.turn_on: case_vertical_gpio
+            - output.turn_on: status_horizontal_gpio
+            - output.turn_on: status_vertical_gpio
           else:
-            - output.turn_off: case_horizontal_gpio
-            - output.turn_off: case_vertical_gpio
+            - output.turn_off: status_horizontal_gpio
+            - output.turn_off: status_vertical_gpio
   - platform: gpio
-    id: case_horizontal_gpio
+    id: status_horizontal_gpio
     pin: GPIO0
     inverted: true
   - platform: gpio
-    id: case_vertical_gpio
+    id: status_vertical_gpio
     pin: GPIO15
     inverted: true
 
