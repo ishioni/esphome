@@ -223,7 +223,7 @@ number:
                 level: !lambda return (x + random_float()) * 0.01; #New
                 # level: !lambda return (x * 0.01) + random_float()* 0.01; #Old
           else:
-            - output.turn_off: laser_servo
+            - output.turn_off: laser_gpio
   - platform: template
     id: motor_speed
     name: ${name} motor speed
