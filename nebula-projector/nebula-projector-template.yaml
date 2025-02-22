@@ -84,6 +84,12 @@ binary_sensor:
               id: case_led
               effect: Fast blink
       - timing:
+          - ON for 5s to 9s
+        then:
+          - logger.log: cancelled
+          - light.turn_off:
+              id: case_led
+      - timing:
           - ON for at least 10s
         then:
           - light.turn_on:
