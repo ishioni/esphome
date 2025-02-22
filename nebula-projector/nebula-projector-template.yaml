@@ -183,24 +183,6 @@ light:
     icon: mdi:laser-pointer
     output: laser_gpio
     restore_mode: ALWAYS_OFF
-  - platform: monochromatic
-    name: Rotation
-    id: motor
-    output: motor_gpio
-    restore_mode: ALWAYS_OFF
-    internal: true
-  # - platform: monochromatic
-  #   name: ${name} bled
-  #   id: bled
-  #   output: bled_pwm
-  #   restore_mode: ALWAYS_OFF
-  #   internal: true
-  # - platform: monochromatic
-  #   name: ${name} rled
-  #   id: rled
-  #   output: rled_pwm
-  #   restore_mode: ALWAYS_OFF
-  #   internal: true
 
 number:
   - platform: template
@@ -217,33 +199,16 @@ number:
     set_action:
       - if:
           condition:
-            - lambda: |-
-                return x >= 1;
+            and:
+              - lambda: |-
+                  return x >= 1;
+              - light.is_on: rgb_light
           then:
             - servo.write:
                 id: motor_servo
                 level: !lambda return x * (1.0f / 6.0f);
-                # level: !lambda return (x + random_float()) * 0.01; #New
-                # level: !lambda return (x * 0.01) + random_float()* 0.01; #Old
           else:
             - output.turn_off: motor_gpio
-    # on_value:
-    #   then:
-    #   - if:
-    #       condition:
-    #         - number.in_range:
-    #             id: motor_speed
-    #             above: 1
-    #         - light.is_on: rgb_light
-    #       then:
-    #         - light.turn_on:
-    #             id: motor
-    #             brightness: !lambda |-
-    #               return (id(motor_speed).state / 10.0) + 0.2;
-    #             transition_length: 0s
-    #       else:
-    #         - light.turn_off:
-    #             id: motor
 
 servo:
   - id: motor_servo
