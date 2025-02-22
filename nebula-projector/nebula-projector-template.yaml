@@ -75,6 +75,7 @@ binary_sensor:
         then:
           - logger.log: LED off
           - light.turn_off: rgb_light
+          - light.turn_off: status_combined_led
       - timing: # LED for reboot
           - ON for at least 5s
         then:
