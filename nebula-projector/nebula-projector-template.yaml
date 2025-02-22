@@ -101,7 +101,7 @@ binary_sensor:
           - light.turn_off:
               id: status_combined_led
           - logger.log: FACTORY RESET
-          # - button.press: button_factory_reset
+          - button.press: button_factory_reset
 
 button:
   - platform: restart
