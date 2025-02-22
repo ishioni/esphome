@@ -181,8 +181,8 @@ light:
           then:
             - light.control:
                 id: laser_light
-                state: !lambda return id(rgb_light).state;
-                brightness: !lambda return id(rgb_light).brightness;
+                state: !lambda return id(rgb_light).current_values.is_on();
+                brightness: !lambda return id(rgb_light).current_values.get_brightness();
   - platform: monochromatic
     name: Laser light
     id: laser_light
