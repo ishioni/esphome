@@ -49,6 +49,7 @@ binary_sensor:
     device_class: connectivity
     name: Status
   - platform: gpio
+    internal: true
     pin: &button
       number: GPIO16
       mode: 
