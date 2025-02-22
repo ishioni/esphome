@@ -256,7 +256,7 @@ output:
     min_power: 0.1
     max_power: 0.8
     zero_means_zero: true
-    # frequency: 2000 Hz
+    frequency: 2000 Hz
     inverted: true
   - platform: esp8266_pwm
     id: motor_pwm
