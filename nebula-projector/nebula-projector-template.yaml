@@ -211,9 +211,9 @@ number:
     optimistic: true
     restore_value: true
     step: 1
-    max_value: 100.0
-    min_value: 0.0
-    initial_value: 0.0
+    max_value: 6
+    min_value: 0
+    initial_value: 0
     set_action:
       - if:
           condition:
@@ -222,7 +222,8 @@ number:
           then:
             - servo.write:
                 id: motor_servo
-                level: !lambda return (x + random_float()) * 0.01; #New
+                level: !lambda return x * (1.0f / 6.0f);
+                # level: !lambda return (x + random_float()) * 0.01; #New
                 # level: !lambda return (x * 0.01) + random_float()* 0.01; #Old
           else:
             - output.turn_off: motor_gpio
