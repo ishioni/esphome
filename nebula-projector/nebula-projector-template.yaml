@@ -96,13 +96,30 @@ sensor:
 
 light:
   - platform: binary
-    name: Case LED 1
-    id: case_led_1
+    id: case_horizontal_led
     output: case_gpio_1
   - platform: binary
-    name: Case LED 2
-    id: case_led_2
-    output: case_gpio_2
+    id: case_vertical_led
+    output: case_vertical_gpio
+  - platform: template
+    name: Case LED
+    id: case_led
+    turn_on_action:
+      - light.turn_on: case_horizontal_led
+      - light.turn_on: case_vertical_led
+    turn_off_action:
+      - light.turn_off: case_horizontal_led
+      - light.turn_off: case_vertical_led
+    effects:
+      - name: Blink
+        then:
+          - light.turn_on: case_horizontal_led
+          - light.turn_off: case_vertical_led
+          - delay: 500ms
+          - light.turn_off: case_horizontal_le1
+          - light.turn_on:  case_vertical_led
+          - delay: 500ms
+          - repeat: infinite
   - platform: rgb
     name: Nebula light
     id: rgb_light
@@ -204,11 +221,11 @@ output:
     pin: GPIO13
     min_power: 0.15
   - platform: gpio
-    id: case_gpio_1
+    id: case_horizontal_gpio
     pin: GPIO0
     inverted: true
   - platform: gpio
-    id: case_gpio_2
+    id: case_vertical_gpio
     pin: GPIO15
     inverted: true
 
