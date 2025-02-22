@@ -210,7 +210,8 @@ output:
     pin: GPIO5
     min_power: 0.45
     max_power: 0.8
-    frequency: 2000 Hz
+    zero_means_zero: true
+    # frequency: 2000 Hz
     inverted: true
   - platform: esp8266_pwm
     id: motor_pwm
