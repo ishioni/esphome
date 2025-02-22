@@ -174,7 +174,7 @@ light:
           id: motor_servo
           level: 0.0 # Turn of the motor
       - light.turn_off: laser_light
-    on_state_change:
+    on_state:
       - if:
         condition:
           - lambda: return id(laser_switch).state;
