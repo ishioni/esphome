@@ -173,9 +173,16 @@ light:
     #             brightness: !lambda |-
     #               return (id(motor_speed).state / 10.0) + 0.2;
     #             transition_length: 0s
-    # on_turn_off:
-    #   - light.turn_off:
-    #       id: motor
+    on_turn_on:
+      - if: # Consider the motor setting
+          condition:
+            - !lambda return id(motor_speed).state >= 1;
+          then:
+            - servo.write:
+                id: motor_servo
+                level: !lambda return id(motor_speed).state * (1.0f / 6.0f);
+    on_turn_off:
+      - output.turn_off: motor_gpio # Turn of the motor
   - platform: monochromatic
     name: Laser light
     id: laser
@@ -199,8 +206,7 @@ number:
       - if:
           condition:
             and:
-              - lambda: |-
-                  return x >= 1;
+              - lambda: return x >= 1;
               - light.is_on: rgb_light
           then:
             - servo.write:
