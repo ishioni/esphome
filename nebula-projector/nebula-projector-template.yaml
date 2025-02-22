@@ -85,6 +85,7 @@ binary_sensor:
               effect: Fast blink
       - timing:
           - ON for at least 10s
+        then:
           - light.turn_on:
               id: case_led
               effect: none
