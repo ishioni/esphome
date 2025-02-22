@@ -55,7 +55,6 @@ binary_sensor:
         input: true
         pulldown: true
       inverted: true
-    name: Short press
     on_multi_click:
       - timing:
           - ON for at most 1s
@@ -63,48 +62,52 @@ binary_sensor:
         then:
           - logger.log: "Single short click"
           - light.toggle: rgb_light
-      - timing:
+      - timing: # LED for power off
           - ON for at least 2s
         then:
           - logger.log: "slow blink"
           - light.turn_on:
               id: case_led
               effect: Slow blink
-      - timing:
+      - timing: # Power off
           - ON for 2s to 5s
           - OFF for at least 0.2s
         then:
-          - logger.log: "Long click"
+          - logger.log: "Shutdown"
           - light.turn_off: case_led
-      - timing:
+          - light.turn_off: rgb_light
+          - light.turn_off: laser
+          - light.turn_off: motor
+      - timing: # LED for reboot
           - ON for at least 5s
         then:
           - logger.log: "fast blink"
           - light.turn_on:
               id: case_led
               effect: Fast blink
-      - timing:
+      - timing: # Reboot
           - ON for 5s to 9s
         then:
           - logger.log: cancelled
-          - light.turn_off:
-              id: case_led
-      - timing:
+          - button.press: button_reboot
+      - timing: # LED for factory reset
           - ON for at least 10s
         then:
           - light.turn_on:
               id: case_led
               effect: none
-      - timing:
+      - timing: # Factory reset
           - ON for at least 10s
           - OFF for at least 0.2s
         then:
           - logger.log: "Very long click"
           - light.turn_off:
               id: case_led
+          - logger.log: "Factory reset here"
 
 button:
   - platform: restart
+    id: button_reboot
     name: Reboot
 
 sensor:
