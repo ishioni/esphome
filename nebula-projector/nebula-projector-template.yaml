@@ -203,12 +203,15 @@ output:
     id: case_gpio
     type: binary
     write_action:
-      - output.set_level: 
-          id: case_horizontal_gpio
-          level: !lambda return state;
-      - output.set_level:
-          id: case_vertical_gpio
-          level: !lambda return state;
+      - if:
+          condition:
+            lambda: "return state;"
+          then:
+            - output.turn_on: case_horizontal_gpio
+            - output.turn_on: case_vertical_gpio
+          else:
+            - output.turn_off: case_horizontal_gpio
+            - output.turn_off: case_vertical_gpio
   - platform: gpio
     id: case_horizontal_gpio
     pin: GPIO0
