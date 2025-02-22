@@ -182,7 +182,9 @@ light:
                 id: motor_servo
                 level: !lambda return id(motor_speed).state * (1.0f / 6.0f);
     on_turn_off:
-      - output.turn_off: motor_gpio # Turn of the motor
+      - servo.write: 
+          id: motor_servo
+          level: 0.0 # Turn of the motor
   - platform: monochromatic
     name: Laser light
     id: laser
