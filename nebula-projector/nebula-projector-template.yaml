@@ -1,162 +1,226 @@
+# GPIO0 	LED outside case
+# GPIO4 	Red
+# GPIO5 	Laser
+# GPIO12 	Green
+# GPIO13 	Motor
+# GPIO14 	Blue
+# GPIO15 	LED outside case
+# GPIO16 	Button
+
 substitutions:
   name: nebula-projector
+  friendly_name: Nebula projector
 
 esphome:
   name: ${name}
-  comment: Tuya nebula projector
+  friendly_name: ${friendly_name}
+  comment: ESP8266 Nebula projector
   name_add_mac_suffix: true
   project:
     name: ishioni.nebula_projector
-    version: "1.0"
+    version: "2.2"
 
 esp8266:
   board: esp12e
-  restore_from_flash: true
+  early_pin_init: false
+  restore_from_flash: false
 
-logger:
-  
 api:
-
-ota:
-  platform: esphome
-
-wifi:
-  ap:
 
 captive_portal:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@master
+  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@feat/nebula-v2
+
+logger:
+  
+ota:
+  platform: esphome
 
 web_server:
   port: 80
   include_internal: true
 
-sensor:
-  - platform: wifi_signal
-    name: ${name} signal
-    disabled_by_default: true
-  - platform: uptime
-    name: ${name} uptime
-    id: uptime_sensor
-    update_interval: 60s
-    disabled_by_default: true
-    on_raw_value:
-      then:
-        - text_sensor.template.publish:
-            id: uptime_human
-            state: !lambda |-
-              int seconds = round(id(uptime_sensor).raw_state);
-              int days = seconds / (24 * 3600);
-              seconds = seconds % (24 * 3600);
-              int hours = seconds / 3600;
-              seconds = seconds % 3600;
-              int minutes = seconds /  60;
-              seconds = seconds % 60;
-              return (
-                (days ? to_string(days) + "d " : "") +
-                (hours ? to_string(hours) + "h " : "") +
-                (minutes ? to_string(minutes) + "m " : "") +
-                (to_string(seconds) + "s")
-              ).c_str();
-
-text_sensor:
-  - platform: template
-    name: ${name} uptime human readable
-    entity_category: diagnostic
-    disabled_by_default: true
-    id: uptime_human
-    icon: mdi:clock-start
+wifi:
+  ap:
 
 binary_sensor:
   - platform: status
-    name: ${name} status
+    device_class: connectivity
+    name: Status
   - platform: gpio
-    pin: 
+    id: button_sensor
+    pin: &button
       number: GPIO16
-      mode: INPUT_PULLDOWN_16
+      mode: 
+        input: true
+        pulldown: true
       inverted: true
-    name: ${name} button
-    on_press:
-      then:
-        - light.turn_on: 
-            id: rgb_light
-            brightness: 30%
-        - light.turn_on: 
-            id: laser
-            brightness: 65%
-        - delay : 1h
-        - light.turn_off: 
-            id: rgb_light
-        - light.turn_off: 
-            id: laser
+    on_multi_click:
+      - timing:
+          - ON for at most 1s
+          - OFF for at least 0.2s
+        then:
+          - logger.log: LED toggle
+          - light.toggle: rgb_light
+      - timing: # LED for power off
+          - ON for at least 2s
+        then:
+          - light.turn_on:
+              id: status_combined_led
+              effect: Slow blink
+      - timing: # Power off
+          - ON for 2s to 5s
+          - OFF for at least 0.2s
+        then:
+          - logger.log: LED off
+          - light.turn_off: rgb_light
+          - light.turn_off: status_combined_led
+      - timing: # LED for reboot
+          - ON for at least 5s
+        then:
+          - light.turn_on:
+              id: status_combined_led
+              effect: Fast blink
+      - timing: # Reboot
+          - ON for 5s to 29s
+        then:
+          - logger.log: Reboot
+          - button.press: button_reboot
+      - timing: # LED for factory reset
+          - ON for at least 30s
+        then:
+          - light.turn_on:
+              id: status_combined_led
+              effect: none
+      - timing: # Factory reset
+          - ON for at least 30s
+          - OFF for at least 0.2s
+        then:
+          - logger.log: Factory reset
+          - light.turn_off:
+              id: status_combined_led
+          - logger.log: FACTORY RESET
+          - button.press: button_factory_reset
+
+button:
+  - platform: restart
+    id: button_reboot
+    name: Reboot
+  - platform: factory_reset
+    id: button_factory_reset
 
 light:
+  - platform: status_led
+    id: status_combined_led
+    output: status_gpio
+    effects:
+      - strobe:
+          name: Slow blink
+          colors:
+            - state: true
+              brightness: 100%
+              duration: 500ms
+            - state: false
+              duration: 500ms
+      - strobe:
+          name: Fast blink
+          colors:
+            - state: true
+              brightness: 100%
+              duration: 150ms
+            - state: false
+              duration: 150ms
   - platform: rgb
-    name: ${name} light
+    name: Nebula light
     id: rgb_light
     icon: mdi:projector
-    red: red
-    green: green
-    blue: blue
+    red: red_gpio
+    green: green_gpio
+    blue: blue_gpio
     restore_mode: ALWAYS_OFF
-    effects:
-      - flicker:
-          name: Flicker
-          alpha: 95%
-          intensity: 2.5%
-      - random:
-          name: Random
-          transition_length: 2.5s
-          update_interval: 3s
-      - random:
-          name: Random Slow
-          transition_length: 10s
-          update_interval: 5s
     on_turn_on:
+      - if: # Consider the motor
+          condition:
+            - lambda: return id(motor_speed).state >= 1;
+          then:
+            - servo.write:
+                id: motor_servo
+                level: !lambda return id(motor_speed).state * (1.0f / 6.0f);
+    on_turn_off:
+      - servo.write: 
+          id: motor_servo
+          level: 0.0 # Turn of the motor
+      - light.turn_off: laser_light
+    on_state:
       - if:
           condition:
-            - number.in_range:
-                id: motor_speed
-                above: 1
+            - lambda: return id(laser_switch).state;
           then:
-            - light.turn_on:
-                id: motor
-                brightness: !lambda |-
-                  return (id(motor_speed).state / 10.0) + 0.2;
-                transition_length: 0s
-    on_turn_off:
-      - light.turn_off:
-          id: motor
+            - delay: 1s
+            - light.control:
+                id: laser_light
+                state: !lambda return id(rgb_light).current_values.is_on();
+                brightness: !lambda return id(rgb_light).current_values.get_brightness();
   - platform: monochromatic
-    name: ${name} laser
-    id: laser
+    id: laser_light
+    output: laser_gpio
+    restore_mode: ALWAYS_OFF
+
+sensor:
+  - platform: wifi_signal
+    id: wifi_signal_db
+    update_interval: 10s
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "WiFi signal"
+    icon: mdi:wifi-strength-1
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    entity_category: "diagnostic"
+    device_class: ""
+  - platform: uptime
+    name: Uptime
+    entity_category: "diagnostic"
+  - platform: adc
+    pin: VCC
+    name: "VCC Voltage"
+    entity_category: "diagnostic"
+    device_class: "voltage"
+
+servo:
+  - id: motor_servo
+    output: motor_gpio
+    max_level: 100%
+
+switch:
+  - platform: template
+    id: laser_switch
+    name: Laser
     icon: mdi:laser-pointer
-    output: laser_pwm
-    restore_mode: ALWAYS_OFF
-  - platform: monochromatic
-    name: ${name} motor
-    id: motor
-    output: motor_pwm
-    restore_mode: ALWAYS_OFF
-    internal: true
-  # - platform: monochromatic
-  #   name: ${name} bled
-  #   id: bled
-  #   output: bled_pwm
-  #   restore_mode: ALWAYS_OFF
-  #   internal: true
-  # - platform: monochromatic
-  #   name: ${name} rled
-  #   id: rled
-  #   output: rled_pwm
-  #   restore_mode: ALWAYS_OFF
-  #   internal: true
+    optimistic: true
+    entity_category: config
+    turn_on_action:
+      - if:
+          condition:
+            - lambda: return id(rgb_light).current_values.is_on();
+          then:
+            - light.control:
+                id: laser_light
+                state: !lambda return id(rgb_light).current_values.is_on();
+                brightness: !lambda return id(rgb_light).current_values.get_brightness();
+    turn_off_action:
+      - if:
+          condition:
+            - lambda: return id(rgb_light).current_values.is_on();
+          then:
+            - light.turn_off: laser_light
 
 number:
   - platform: template
     id: motor_speed
-    name: ${name} motor speed
+    name: Motor speed
     icon: mdi:cog-clockwise
     entity_category: config
     optimistic: true
@@ -164,83 +228,67 @@ number:
     step: 1
     max_value: 6
     min_value: 0
-    on_value:
-      then:
+    initial_value: 3
+    set_action:
       - if:
           condition:
-            - number.in_range:
-                id: motor_speed
-                above: 1
             - light.is_on: rgb_light
           then:
-            - light.turn_on:
-                id: motor
-                brightness: !lambda |-
-                  return (id(motor_speed).state / 10.0) + 0.2;
-                transition_length: 0s
-          else:
-            - light.turn_off:
-                id: motor
-
-button:
-  - platform: restart
-    name: ${name} restart
-
-# interval:
-#   - interval: 60s
-#     then:
-#       if:
-#         condition:
-#           wifi.connected:
-#         then:
-#           - light.turn_on: 
-#               id: bled
-#               brightness: 50%
-#         else:
-#           - light.turn_off: 
-#               id: bled
-#   - interval: 60s
-#     then:
-#       if:
-#         condition:
-#           api.connected:
-#         then:
-#           - light.turn_on: 
-#               id: rled
-#               brightness: 50%
-#         else:
-#           - light.turn_off: 
-#               id: rled
+            - servo.write:
+                id: motor_servo
+                level: !lambda return x * (1.0f / 6.0f);
 
 output:
   - platform: esp8266_pwm
-    id: red
+    id: red_gpio
     pin: GPIO4
     inverted: true
+    min_power: 0.1
+    zero_means_zero: true
   - platform: esp8266_pwm
-    id: green
+    id: green_gpio
     pin: GPIO12
     inverted: true
+    min_power: 0.1
+    zero_means_zero: true
   - platform: esp8266_pwm
-    id: blue
+    id: blue_gpio
     pin: GPIO14
     inverted: true
+    min_power: 0.1
+    zero_means_zero: true
   - platform: esp8266_pwm
-    id: laser_pwm
+    id: laser_gpio
     pin: GPIO5
-    max_power: 80%
+    min_power: 0.1
+    max_power: 0.8
+    zero_means_zero: true
     frequency: 2000 Hz
     inverted: true
   - platform: esp8266_pwm
-    id: motor_pwm
+    id: motor_gpio
     pin: GPIO13
-    min_power: 0.15
-  # - platform: esp8266_pwm
-  #   id: bled_pwm
-  #   pin: GPIO0
-  #   inverted: true
-  # - platform: esp8266_pwm
-  #   id: rled_pwm
-  #   pin: GPIO15
-  #   inverted: true
+    frequency: 8Hz
+    # min_power: 0.15
+  - platform: template
+    id: status_gpio
+    type: binary
+    write_action:
+      - if:
+          condition:
+            lambda: "return state;"
+          then:
+            - output.turn_on: status_horizontal_gpio
+            - output.turn_on: status_vertical_gpio
+          else:
+            - output.turn_off: status_horizontal_gpio
+            - output.turn_off: status_vertical_gpio
+  - platform: gpio
+    id: status_horizontal_gpio
+    pin: GPIO0
+    inverted: true
+  - platform: gpio
+    id: status_vertical_gpio
+    pin: GPIO15
+    inverted: true
 
