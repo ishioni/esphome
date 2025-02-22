@@ -206,7 +206,7 @@ output:
       - output.turn_on: case_horizontal_gpio
       - output.turn_on: case_vertical_gpio
       - delay: !lambda "return state ? 0ms : 1ms;"  # Ensures proper OFF timing
-      - output.turn_off: case_horizontal_gp
+      - output.turn_off: case_horizontal_gpio
       - output.turn_off: case_vertical_gpio
   - platform: gpio
     id: case_horizontal_gpio
