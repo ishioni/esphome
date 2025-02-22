@@ -218,7 +218,7 @@ number:
       - if:
           condition:
             - lambda: |-
-                return x >=1;
+                return x >= 1;
           then:
             - servo.write:
                 id: motor_servo
