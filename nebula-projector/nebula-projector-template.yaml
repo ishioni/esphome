@@ -69,7 +69,7 @@ binary_sensor:
           - logger.log: "Long click"
       - timing:
           - ON for at least 6s
-          - OFF for at least 0.2
+          - OFF for at least 0.2s
         then:
           - logger.log: "Very long click"
 
