@@ -224,6 +224,21 @@ switch:
     icon: mdi:laser-pointer
     optimistic: true
     entity_category: config
+    turn_on_action:
+      - if:
+          condition:
+            - lambda: return id(rgb_light).current_values.is_on();
+          then:
+            - light.control:
+                id: laser_light
+                state: !lambda return id(rgb_light).current_values.is_on();
+                brightness: !lambda return id(rgb_light).current_values.get_brightness();
+    turn_off_action:
+      - if:
+          condition:
+            - lambda: return id(rgb_light).current_values.is_on();
+          then:
+            - light.turn_off: laser_light
 
 output:
   - platform: esp8266_pwm
