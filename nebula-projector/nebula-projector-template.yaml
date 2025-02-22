@@ -176,13 +176,13 @@ light:
       - light.turn_off: laser_light
     on_state:
       - if:
-        condition:
-          - lambda: return id(laser_switch).state;
-        then:
-          - light.control:
-              id: laser_light
-              state: !lambda return id(rgb_light).state;
-              brightness: !lambda return id(rgb_light).brightness;
+          condition:
+            - lambda: return id(laser_switch).state;
+          then:
+            - light.control:
+                id: laser_light
+                state: !lambda return id(rgb_light).state;
+                brightness: !lambda return id(rgb_light).brightness;
   - platform: monochromatic
     name: Laser light
     id: laser_light
