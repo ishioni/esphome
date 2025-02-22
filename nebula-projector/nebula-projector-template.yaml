@@ -64,7 +64,7 @@ binary_sensor:
           - logger.log: "Single short click"
           - light.toggle: rgb_light
       - timing:
-          - ON for 2s to 5s
+          - ON for at least 2s
         then:
           - logger.log: "slow blink"
           - light.turn_on:
