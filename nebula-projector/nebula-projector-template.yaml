@@ -208,7 +208,7 @@ output:
   - platform: esp8266_pwm
     id: laser_pwm
     pin: GPIO5
-    min_power: 0.3
+    min_power: 0.1
     max_power: 0.8
     zero_means_zero: true
     # frequency: 2000 Hz
