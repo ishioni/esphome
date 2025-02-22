@@ -96,7 +96,7 @@ sensor:
 
 light:
   - platform: binary
-    Name: Case LEDs
+    name: Case LEDs
     id: case_horizontal_led
     output: case_gpio
   - platform: rgb
