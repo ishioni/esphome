@@ -67,7 +67,7 @@ binary_sensor:
           - ON for at least 2s
         then:
           - light.turn_on:
-              id: status_combied_led
+              id: status_combined_led
               effect: Slow blink
       - timing: # Power off
           - ON for 2s to 5s
@@ -79,7 +79,7 @@ binary_sensor:
           - ON for at least 5s
         then:
           - light.turn_on:
-              id: status_combied_led
+              id: status_combined_led
               effect: Fast blink
       - timing: # Reboot
           - ON for 5s to 29s
@@ -90,7 +90,7 @@ binary_sensor:
           - ON for at least 30s
         then:
           - light.turn_on:
-              id: status_combied_led
+              id: status_combined_led
               effect: none
       - timing: # Factory reset
           - ON for at least 30s
@@ -98,7 +98,7 @@ binary_sensor:
         then:
           - logger.log: Factory reset
           - light.turn_off:
-              id: status_combied_led
+              id: status_combined_led
           - logger.log: FACTORY RESET
           # - button.press: button_factory_reset
 
@@ -110,8 +110,8 @@ button:
     id: button_factory_reset
 
 light:
-  - platform: status_combied_led
-    id: status_combied_led
+  - platform: status_led
+    id: status_combined_led
     output: status_gpio
     effects:
       - strobe:
