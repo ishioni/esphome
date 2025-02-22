@@ -60,7 +60,7 @@ binary_sensor:
       - timing:
           - ON for at least 0.1s
         then:
-          - logger: "slow blink"
+          - logger.log: "slow blink"
           - light.turn_on:
               id: case_led
               effect: Slow blink
