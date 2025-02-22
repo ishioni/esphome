@@ -177,12 +177,12 @@ light:
     on_turn_off:
       - light.turn_off:
           id: motor
-  # - platform: monochromatic
-  #   name: Laser light
-  #   id: laser
-  #   icon: mdi:laser-pointer
-  #   output: laser_pwm
-  #   restore_mode: ALWAYS_OFF
+  - platform: monochromatic
+    name: Laser light
+    id: laser
+    icon: mdi:laser-pointer
+    output: laser_gpio
+    restore_mode: ALWAYS_OFF
   - platform: monochromatic
     name: Rotation
     id: motor
@@ -203,27 +203,6 @@ light:
   #   internal: true
 
 number:
-  - platform: template
-    name: Laser
-    id: laser_control
-    update_interval: never
-    optimistic: true
-    min_value: 0.0
-    max_value: 100.0
-    initial_value: 0.0
-    step: 1
-    set_action:
-      - if:
-          condition:
-            - lambda: |-
-                return x >=1;
-          then:
-            - servo.write:
-                id: laser_servo
-                level: !lambda return (x + random_float()) * 0.01; #New
-                # level: !lambda return (x * 0.01) + random_float()* 0.01; #Old
-          else:
-            - output.turn_off: laser_gpio
   - platform: template
     id: motor_speed
     name: ${name} motor speed
@@ -252,10 +231,6 @@ number:
             - light.turn_off:
                 id: motor
 
-servo:
-  - id: laser_servo
-    output: laser_gpio
-
 output:
   - platform: esp8266_pwm
     id: nebula_red
@@ -278,9 +253,9 @@ output:
   - platform: esp8266_pwm
     id: laser_gpio
     pin: GPIO5
-    # min_power: 0.1
-    # max_power: 0.8
-    # zero_means_zero: true
+    min_power: 0.1
+    max_power: 0.8
+    zero_means_zero: true
     frequency: 2000 Hz
     inverted: true
   - platform: esp8266_pwm
