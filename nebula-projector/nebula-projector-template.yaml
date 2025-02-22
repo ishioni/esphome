@@ -96,7 +96,6 @@ sensor:
 
 light:
   - platform: status_led
-    name: Case LEDs
     id: case_horizontal_led
     output: case_gpio
     effects:
