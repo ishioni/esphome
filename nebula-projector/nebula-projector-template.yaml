@@ -98,21 +98,17 @@ switch:
   - platform: template
     id: case_switch_1
     name: Case switch 1
-    on_turn_on:
-      then:
-        - light.turn_on: case_led_1
-    on_turn_off:
-      then:
-        - light.turn_off: case_led_1
+    turn_on_action:
+      - light.turn_on: case_led_1
+    turn_off_action:
+      - light.turn_off: case_led_1
   - platform: template
     id: case_switch_2
     name: Case switch 2
-    on_turn_on:
-      then:
-        - light.turn_on: case_led_2
-    on_turn_off:
-      then:
-        - light.turn_off: case_led_2
+    turn_on_action:
+      - light.turn_on: case_led_2
+    turn_off_action:
+      - light.turn_off: case_led_2
 
 light:
   - platform: binary
