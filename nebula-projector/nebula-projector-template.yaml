@@ -49,13 +49,29 @@ binary_sensor:
     device_class: connectivity
     name: Status
   - platform: gpio
-    pin: 
+    pin: &button
       number: GPIO16
       mode: 
         input: true
         pulldown: true
       inverted: true
-    name: Buttom
+    name: Short press
+    on_multi_click:
+      - timing:
+          - ON for at most 1s
+          - OFF for at least 0.2s
+        then:
+          - logger.log: "Single short click"
+      - timing:
+          - ON for at most 3s
+          - OFF for at least 0.2s
+        then:
+          - logger.log: "Long click"
+      - timing:
+          - ON for at least 6s
+          - OFF for at least 0.2
+        then:
+          - logger.log: "Very long click"
 
 button:
   - platform: restart
