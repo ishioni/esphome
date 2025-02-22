@@ -176,7 +176,7 @@ light:
     on_turn_on:
       - if: # Consider the motor setting
           condition:
-            - !lambda return id(motor_speed).state >= 1;
+            - lambda: return id(motor_speed).state >= 1;
           then:
             - servo.write:
                 id: motor_servo
