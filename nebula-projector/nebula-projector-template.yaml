@@ -221,7 +221,7 @@ number:
                 return x >=1;
           then:
             - servo.write:
-                id: main_servo
+                id: motor_servo
                 level: !lambda return (x + random_float()) * 0.01; #New
                 # level: !lambda return (x * 0.01) + random_float()* 0.01; #Old
           else:
