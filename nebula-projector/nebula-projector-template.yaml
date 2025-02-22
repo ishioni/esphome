@@ -197,14 +197,20 @@ output:
     id: nebula_red
     pin: GPIO4
     inverted: true
+    min_power: 0.1
+    zero_means_zero: true
   - platform: esp8266_pwm
     id: nebula_green
     pin: GPIO12
     inverted: true
+    min_power: 0.1
+    zero_means_zero: true
   - platform: esp8266_pwm
     id: nebula_blue
     pin: GPIO14
     inverted: true
+    min_power: 0.1
+    zero_means_zero: true
   - platform: esp8266_pwm
     id: laser_pwm
     pin: GPIO5
