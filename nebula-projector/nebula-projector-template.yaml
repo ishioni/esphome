@@ -16,8 +16,7 @@ esphome:
   friendly_name: ${friendly_name}
   comment: ESP8266 Nebula projector
   name_add_mac_suffix: true
-  preferences:
-    flash_write_interval: 30min
+  flash_write_interval: 30min
   project:
     name: ishioni.nebula_projector
     version: "2.1"
