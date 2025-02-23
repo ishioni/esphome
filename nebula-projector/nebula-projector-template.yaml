@@ -30,7 +30,7 @@ api:
 captive_portal:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@feat/nebula-effects
+  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@nebula-projector-v2.1
 
 logger:
   
