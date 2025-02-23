@@ -142,11 +142,11 @@ light:
       - random:
           name: Random
           transition_length: 2.5s
-          update_interval: 3s
+          update_interval: 5s
       - random:
           name: Random Slow
-          transition_length: 10s
-          update_interval: 5s
+          transition_length: 15s
+          update_interval: 30s
     on_turn_on:
       - if: # Consider the motor
           condition:
