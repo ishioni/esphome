@@ -144,7 +144,7 @@ light:
           transition_length: 2.5s
           update_interval: 5s
       - random:
-          name: Random Slow
+          name: Slow Random
           transition_length: 15s
           update_interval: 30s
     on_turn_on:
