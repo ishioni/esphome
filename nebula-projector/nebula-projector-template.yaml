@@ -18,7 +18,7 @@ esphome:
   name_add_mac_suffix: true
   project:
     name: ishioni.nebula_projector
-    version: "2.0"
+    version: "2.1"
 
 esp8266:
   board: esp12e
@@ -30,7 +30,7 @@ api:
 captive_portal:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@nebula-projector-v2.0
+  package_import_url: github://ishioni/esphome/nebula-projector/nebula-projector-template.yaml@feat/nebula-effects
 
 logger:
   
@@ -139,6 +139,15 @@ light:
     green: green_gpio
     blue: blue_gpio
     restore_mode: ALWAYS_OFF
+    effects:
+      - random:
+          name: Random
+          transition_length: 2.5s
+          update_interval: 3s
+      - random:
+          name: Random Slow
+          transition_length: 10s
+          update_interval: 5s
     on_turn_on:
       - if: # Consider the motor
           condition:
