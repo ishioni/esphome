@@ -35,7 +35,8 @@ dashboard_import:
 logger:
   
 ota:
-  platform: esphome
+  - platform: esphome
+  - platform: web_server
 
 web_server:
   port: 80
