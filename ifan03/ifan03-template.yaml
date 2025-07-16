@@ -22,12 +22,13 @@ api:
 captive_portal:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@ifan03-v2.2
+  package_import_url: github://ishioni/esphome/ifan03/ifan03-template.yaml@ifan03-v2.3
 
 logger:
 
 ota:
-  platform: esphome
+  - platform: esphome
+  - platform: web_server
 
 web_server:
   port: 80
