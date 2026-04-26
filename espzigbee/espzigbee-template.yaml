@@ -10,11 +10,11 @@ esphome:
   name_add_mac_suffix: true
   project:
     name: ishioni.espzigbee
-    version: "2.0"
+    version: "2.3"
   on_boot:
     - priority: 250
       then:
-        - script.execute: 
+        - script.execute:
             id: zigbee_reset_script
             publish_state: true
 
@@ -22,11 +22,15 @@ esp32:
   board: esp32dev
   framework:
     type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_GATTC_MAX_CACHE_CHAR: "100"
+    advanced:
+      sram1_as_iram: True
 
 api:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/espzigbee/espzigbee-template.yaml@espzigbee-v2.2
+  package_import_url: github://ishioni/esphome/espzigbee/espzigbee-template.yaml@espzigbee-v2.3
 
 external_components:
   - source: github://oxan/esphome-stream-server
@@ -39,6 +43,7 @@ ota:
 
 web_server:
   port: 80
+  version: 3
 
 binary_sensor:
   - platform: status
@@ -64,7 +69,7 @@ button:
     device_class: restart
     id: zigbee_reset
     on_press:
-      - script.execute: 
+      - script.execute:
           id: zigbee_reset_script
           publish_state: true
   - platform: template
@@ -121,7 +126,7 @@ script:
     then:
       - if:
           condition:
-            lambda: 'return publish_state;'
+            lambda: "return publish_state;"
           then:
             - text_sensor.template.publish:
                 id: zigbee_state
@@ -134,7 +139,7 @@ script:
       - logger.log: "Zigbee reset"
       - if:
           condition:
-            lambda: 'return publish_state;'
+            lambda: "return publish_state;"
           then:
             - text_sensor.template.publish:
                 id: zigbee_state
@@ -154,7 +159,7 @@ script:
       - switch.turn_off: zigbee_bsl_switch
       - light.turn_on:
           id: amber_led
-          effect: blink    
+          effect: blink
       - logger.log: "Update with cc2538-bsl tool now!"
       - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:6638 -evw firmware.hex"
 
@@ -187,3 +192,47 @@ uart:
   tx_pin: GPIO5
   baud_rate: 115200
   rx_buffer_size: 2048
+
+# # ===== BLE & Bluetooth Proxy =====
+# # Default Medium (28% duty cycle); user selection persists across reboots
+esp32_ble:
+  max_connections: 5
+
+esp32_ble_tracker:
+  id: ble_tracker
+  scan_parameters:
+    active: true
+    interval: 320ms
+    window: 90ms
+    continuous: true
+
+bluetooth_proxy:
+  active: true
+  connection_slots: 5
+
+select:
+  - platform: template
+    name: "BLE Scan Profile"
+    id: sel_ble_scan_profile
+    optimistic: true
+    restore_value: true
+    initial_option: "Medium"
+    options:
+      - "Low"
+      - "Medium"
+      - "High"
+    set_action:
+      - lambda: |-
+          id(ble_tracker).stop_scan();
+          auto opt = id(sel_ble_scan_profile).current_option();
+          if (opt == "Low") {
+              id(ble_tracker).set_scan_interval(320);
+              id(ble_tracker).set_scan_window(30);
+          } else if (opt == "Medium") {
+              id(ble_tracker).set_scan_interval(320);
+              id(ble_tracker).set_scan_window(90);
+          } else {
+              id(ble_tracker).set_scan_interval(320);
+              id(ble_tracker).set_scan_window(160);
+          }
+          id(ble_tracker).start_scan();
