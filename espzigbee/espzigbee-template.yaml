@@ -10,7 +10,7 @@ esphome:
   name_add_mac_suffix: true
   project:
     name: ishioni.espzigbee
-    version: "2.3"
+    version: "2.4"
   on_boot:
     - priority: 250
       then:
@@ -30,10 +30,10 @@ esp32:
 api:
 
 dashboard_import:
-  package_import_url: github://ishioni/esphome/espzigbee/espzigbee-template.yaml@espzigbee-v2.3
+  package_import_url: github://ishioni/esphome/espzigbee/espzigbee-template.yaml@espzigbee-v2.4
 
 external_components:
-  - source: github://oxan/esphome-stream-server
+  - source: github://grob6000/esphome-stream-server
 
 logger:
 
